@@ -1,0 +1,194 @@
+/* ════════════════════════════════════════════════════════════
+   wb-bottom-nav.css  — Webey Mobil Alt Navigasyon
+   Sadece ≤767px'de görünür
+   ════════════════════════════════════════════════════════════ */
+
+:root {
+  --bn-h:        64px;
+  --bn-bg:       #ffffff;
+  --bn-border:   rgba(0,0,0,.08);
+  --bn-ink:      #94a3b8;
+  --bn-active:   #0ea5b3;
+  --bn-badge:    #ef4444;
+  --bn-radius:   0;
+  --bn-safe:     env(safe-area-inset-bottom, 0px);
+}
+
+/* Sayfa altına boşluk bırak (içerik nav'ın altında kalmasın) */
+@media (max-width: 767px) {
+  body { padding-bottom: calc(var(--bn-h) + var(--bn-safe) + 4px); }
+}
+
+/* ── Nav Container ── */
+.wb-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(var(--bn-h) + var(--bn-safe));
+  padding-bottom: var(--bn-safe);
+  background: var(--bn-bg);
+  border-top: 1px solid var(--bn-border);
+  z-index: 9000;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 -4px 24px rgba(0,0,0,.07);
+}
+
+@media (max-width: 767px) {
+  .wb-bottom-nav { display: flex; }
+}
+
+/* ── Nav İç wrapper ── */
+.wb-bn-inner {
+  display: flex;
+  width: 100%;
+  height: var(--bn-h);
+  align-items: stretch;
+}
+
+/* ── Nav Item ── */
+.wb-bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--bn-ink);
+  position: relative;
+  transition: color .2s;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.wb-bn-item:active { opacity: .7; }
+
+/* ── Aktif renk ── */
+.wb-bn-item.is-active,
+.wb-bn-item[aria-current="page"] {
+  color: var(--bn-active);
+}
+
+/* ── Aktif gösterge: üst çizgi ── */
+.wb-bn-item.is-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2.5px;
+  background: var(--bn-active);
+  border-radius: 0 0 3px 3px;
+  animation: bnSlideIn .2s ease;
+}
+
+@keyframes bnSlideIn {
+  from { transform: scaleX(0); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
+}
+
+/* ── İkon ── */
+.wb-bn-icon {
+  font-size: 20px;
+  line-height: 1;
+  position: relative;
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+
+.wb-bn-item.is-active .wb-bn-icon {
+  transform: translateY(-2px) scale(1.1);
+}
+
+/* ── Etiket ── */
+.wb-bn-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ── Badge (bildirim sayısı) ── */
+.wb-bn-badge {
+  position: absolute;
+  top: 8px;
+  right: calc(50% - 18px);
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: var(--bn-badge);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 1.5px solid #fff;
+  transform: scale(0);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+
+.wb-bn-badge.visible {
+  transform: scale(1);
+}
+
+/* ── Orta büyük buton (randevu CTA) ── */
+.wb-bn-item.wb-bn-cta {
+  flex: 0 0 72px;
+}
+
+.wb-bn-item.wb-bn-cta .wb-bn-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bn-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(14,165,179,.4);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+  margin-bottom: 2px;
+}
+
+.wb-bn-item.wb-bn-cta:active .wb-bn-icon-wrap {
+  transform: scale(.92);
+  box-shadow: 0 2px 8px rgba(14,165,179,.3);
+}
+
+.wb-bn-item.wb-bn-cta .wb-bn-icon {
+  font-size: 22px;
+  color: #fff;
+  transform: none !important;
+}
+
+.wb-bn-item.wb-bn-cta .wb-bn-label {
+  color: var(--bn-active);
+  font-weight: 700;
+}
+
+/* ── Press ripple ── */
+.wb-bn-item::after {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 12px;
+  background: var(--bn-active);
+  opacity: 0;
+  transform: scale(0);
+  transition: transform .3s ease, opacity .3s ease;
+  pointer-events: none;
+}
+
+.wb-bn-item:active::after {
+  transform: scale(1);
+  opacity: .07;
+  transition: none;
+}

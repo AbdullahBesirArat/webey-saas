@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Şifremi Unuttum – Webey</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
+  <link rel="icon" href="img/favicon.ico" />
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--brand:#0ea5b3;--brand-dark:#0b8a96;--ink:#0d0d0d;--ink-2:#3d3d3d;--ink-3:#6b6b6b;--surface:#fff;--bg:#f4f3ef;--border:#e8e6e0;--radius:14px;--radius-lg:22px;--radius-xl:32px;--shadow-lg:0 20px 52px rgba(0,0,0,.15);}
+    body{font-family:'Inter','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:grid;place-items:center;padding:24px 16px;-webkit-font-smoothing:antialiased;}
+    .auth-card{width:min(440px,100%);background:var(--surface);border-radius:var(--radius-xl);padding:48px 40px 40px;box-shadow:var(--shadow-lg);border:1px solid var(--border);}
+    @media(max-width:480px){.auth-card{padding:36px 24px 32px;border-radius:var(--radius-lg);}}
+    .logo-link{display:block;text-align:center;margin-bottom:28px;text-decoration:none;}
+    .logo-text{font-family:'DM Serif Display',serif;font-style:italic;font-size:28px;font-weight:600;color:var(--brand);}
+    .icon-wrap{width:72px;height:72px;border-radius:50%;background:rgba(14,165,179,.10);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px;}
+    h1{font-size:22px;font-weight:700;text-align:center;margin-bottom:8px;}
+    .subtitle{font-size:14px;color:var(--ink-3);text-align:center;line-height:1.6;margin-bottom:24px;}
+    .steps{display:flex;justify-content:center;gap:8px;margin-bottom:28px;}
+    .step-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s;}
+    .step-dot.active{background:var(--brand);}
+    .step-dot.done{background:var(--brand);opacity:.4;}
+    .form-group{margin-bottom:16px;}
+    label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px;}
+    .input-wrap{position:relative;}
+    .cc-box{position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;padding:0 10px 0 14px;gap:4px;font-size:13.5px;font-weight:600;color:var(--ink-2);pointer-events:none;border-right:1px solid var(--border);}
+    .inp-text{width:100%;padding:13px 14px 13px 40px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:14px;color:var(--ink);background:#fff;transition:border-color .2s,box-shadow .2s;outline:none;}
+    .inp-text.with-cc{padding-left:80px;}
+    .inp-text:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(14,165,179,.12);}
+    .inp-text::placeholder{color:#b0aea8;}
+    .pass-wrap{position:relative;}
+    .pass-wrap .inp-text{padding-right:46px;}
+    .toggle-eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink-3);font-size:16px;padding:4px;display:flex;align-items:center;}
+    .toggle-eye-btn:hover{color:var(--brand);}
+    .otp-input{text-align:center;font-size:24px;letter-spacing:12px;font-weight:700;padding:13px 14px;}
+    .resend-row{text-align:center;font-size:13px;color:var(--ink-3);margin-top:10px;}
+    .resend-row button{background:none;border:none;color:var(--brand);font-weight:700;cursor:pointer;font-size:13px;padding:0;}
+    .resend-row button:disabled{color:var(--ink-3);cursor:default;}
+    .btn-primary{width:100%;padding:14px;background:var(--brand);color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;text-decoration:none;}
+    .btn-primary:hover{background:var(--brand-dark);}
+    .btn-primary:active{transform:scale(.98);}
+    .btn-primary:disabled{opacity:.65;cursor:not-allowed;transform:none;}
+    .spinner{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .8s linear infinite;display:none;}
+    .btn-primary.loading .spinner{display:block;}
+    .btn-primary.loading .btn-label{display:none;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .alert{padding:13px 16px;border-radius:var(--radius);font-size:13.5px;line-height:1.5;margin-bottom:16px;display:none;}
+    .alert.show{display:flex;align-items:flex-start;gap:10px;}
+    .alert-error{background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}
+    .alert i{margin-top:2px;flex-shrink:0;}
+    .pass-strength{height:4px;background:#ececec;border-radius:99px;margin:8px 0 4px;overflow:hidden;}
+    .pass-strength-bar{height:100%;width:0;border-radius:99px;transition:width .3s,background .3s;}
+    .pass-strength-bar.weak{width:33%;background:#ef4444;}
+    .pass-strength-bar.medium{width:66%;background:#f59e0b;}
+    .pass-strength-bar.strong{width:100%;background:#22c55e;}
+    .pass-hint{font-size:12px;color:var(--ink-3);margin-bottom:10px;}
+    .back-link{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:20px;font-size:13.5px;color:var(--ink-3);text-decoration:none;transition:color .2s;}
+    .back-link:hover{color:var(--brand);}
+    .step{display:none;}
+    .step.active{display:block;}
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <a href="index.html" class="logo-link"><span class="logo-text">Webey</span></a>
+    <div class="steps" id="stepDots">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
+
+    <!-- ADIM 1: Telefon -->
+    <div class="step active" id="step1">
+      <div class="icon-wrap">🔑</div>
+      <h1>Şifremi Unuttum</h1>
+      <p class="subtitle">Kayıtlı telefon numaranı gir, SMS doğrulama kodu gönderelim.</p>
+      <div class="alert alert-error" id="err1" role="alert"><i class="fas fa-circle-exclamation"></i><span id="err1Text"></span></div>
+      <form id="form1" novalidate>
+        <div class="form-group">
+          <label for="phoneInput">Telefon Numarası</label>
+          <div class="input-wrap">
+            <div class="cc-box"><span>🇹🇷</span><span>+90</span></div>
+            <input class="inp-text with-cc" type="tel" id="phoneInput" placeholder="5xx xxx xx xx" inputmode="numeric" maxlength="13" autocomplete="tel-national" required />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="btn1"><span class="btn-label">Kod Gönder</span><div class="spinner"></div></button>
+      </form>
+      <a href="javascript:history.back()" class="back-link"><i class="fas fa-arrow-left"></i> Geri Dön</a>
+    </div>
+
+    <!-- ADIM 2: OTP -->
+    <div class="step" id="step2">
+      <div class="icon-wrap">📱</div>
+      <h1>SMS Kodunu Gir</h1>
+      <p class="subtitle" id="otpSubtitle">Telefonuna gönderilen 6 haneli kodu gir.</p>
+      <div class="alert alert-error" id="err2" role="alert"><i class="fas fa-circle-exclamation"></i><span id="err2Text"></span></div>
+      <form id="form2" novalidate>
+        <div class="form-group">
+          <input class="inp-text otp-input" type="text" id="otpInput" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="- - - - - -" autocomplete="one-time-code" required aria-label="SMS kodu" />
+        </div>
+        <button type="submit" class="btn-primary" id="btn2"><span class="btn-label">Doğrula</span><div class="spinner"></div></button>
+      </form>
+      <div class="resend-row">
+        <button id="resendBtn" disabled>Kodu Tekrar Gönder (<span id="resendCountdown">60</span>s)</button>
+      </div>
+      <a href="javascript:void(0)" class="back-link" id="backTo1"><i class="fas fa-arrow-left"></i> Numarayı Değiştir</a>
+    </div>
+
+    <!-- ADIM 3: Yeni Şifre -->
+    <div class="step" id="step3">
+      <div class="icon-wrap" style="background:rgba(34,197,94,.1);">🔒</div>
+      <h1>Yeni Şifre Belirle</h1>
+      <p class="subtitle">En az 8 karakter — harf ve rakam karıştırabilirsin.</p>
+      <div class="alert alert-error" id="err3" role="alert"><i class="fas fa-circle-exclamation"></i><span id="err3Text"></span></div>
+      <form id="form3" novalidate>
+        <div class="form-group">
+          <label for="newPassInput">Yeni Şifre</label>
+          <div class="pass-wrap">
+            <input class="inp-text" type="password" id="newPassInput" placeholder="En az 8 karakter" autocomplete="new-password" required minlength="8" />
+            <button type="button" class="toggle-eye-btn" id="eyeBtn1" aria-label="Şifreyi göster/gizle"><i class="fa-regular fa-eye"></i></button>
+          </div>
+          <div class="pass-strength"><div class="pass-strength-bar" id="passBar"></div></div>
+          <div class="pass-hint" id="passHint"></div>
+        </div>
+        <div class="form-group">
+          <label for="confirmPassInput">Şifre (Tekrar)</label>
+          <div class="pass-wrap">
+            <input class="inp-text" type="password" id="confirmPassInput" placeholder="Şifreni tekrar gir" autocomplete="new-password" required minlength="8" />
+            <button type="button" class="toggle-eye-btn" id="eyeBtn2" aria-label="Şifreyi göster/gizle"><i class="fa-regular fa-eye"></i></button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="btn3" disabled><span class="btn-label">Şifremi Güncelle ✓</span><div class="spinner"></div></button>
+      </form>
+    </div>
+
+    <!-- ADIM 4: Başarı -->
+    <div class="step" id="step4">
+      <div class="icon-wrap" style="background:rgba(34,197,94,.1);font-size:36px;">✅</div>
+      <h1>Şifren Güncellendi!</h1>
+      <p class="subtitle">Yeni şifrenle giriş yapabilirsin.</p>
+      <a href="index.html" class="btn-primary" style="margin-top:4px;"><span>Ana Sayfaya Dön</span></a>
+    </div>
+  </div>
+
+  <script>
+    function normPhone(raw){ let p=(raw||'').replace(/\D/g,''); if(p.startsWith('90')&&p.length===12)p=p.slice(2); if(p.startsWith('0'))p=p.slice(1); return p; }
+    function maskPhone(v){ const d=v.replace(/\D/g,'').slice(0,10); const p1=d.slice(0,3),p2=d.slice(3,6),p3=d.slice(6,8),p4=d.slice(8,10); let o=''; if(p1)o+=p1; if(p2)o+=' '+p2; if(p3)o+=' '+p3; if(p4)o+=' '+p4; return o; }
+    function showErr(id,msg){ document.getElementById(id).classList.add('show'); document.getElementById(id+'Text').textContent=msg; }
+    function hideErr(id){ document.getElementById(id).classList.remove('show'); }
+    function setLoad(btn,yes){ btn.disabled=yes; btn.classList.toggle('loading',yes); }
+
+    let _phone='', _otpToken='', _resendTimer=null;
+
+    function goStep(n){
+      document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+      document.getElementById('step'+n).classList.add('active');
+      [1,2,3].forEach(i=>{ const d=document.getElementById('dot'+i); if(!d)return; d.classList.remove('active','done'); if(i<n)d.classList.add('done'); else if(i===n)d.classList.add('active'); });
+      document.getElementById('stepDots').style.display = n===4?'none':'flex';
+    }
+
+    // Telefon maskeleme
+    const phoneInput = document.getElementById('phoneInput');
+    phoneInput.addEventListener('input', ()=>{ phoneInput.value=maskPhone(phoneInput.value); });
+
+    // Adım 1: Kod gönder
+    document.getElementById('form1').addEventListener('submit', async e=>{
+      e.preventDefault(); hideErr('err1');
+      const phone = normPhone(phoneInput.value);
+      if(phone.length!==10||!phone.startsWith('5')){ showErr('err1','10 haneli Türkiye numarası girin (5xx...)'); return; }
+      const btn=document.getElementById('btn1'); setLoad(btn,true);
+      try{
+        const res=await fetch('/api/auth/send-otp.php',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({phone,purpose:'reset_password'}) });
+        const json=await res.json();
+        if(!json.ok){ showErr('err1',json.error||'SMS gönderilemedi, tekrar deneyin.'); return; }
+        _phone=phone;
+        document.getElementById('otpSubtitle').textContent=
+          '+90 '+phone.slice(0,3)+' '+phone.slice(3,6)+' '+phone.slice(6,8)+' '+phone.slice(8)+' numarasına gönderilen 6 haneli kodu gir.';
+        if(json.debug_code) alert('[DEBUG] OTP: '+json.debug_code);
+        goStep(2); startResendCountdown();
+        setTimeout(()=>document.getElementById('otpInput').focus(),100);
+      }catch{ showErr('err1','Bağlantı hatası, tekrar deneyin.'); }
+      finally{ setLoad(btn,false); }
+    });
+
+    function startResendCountdown(secs=60){
+      let rem=secs; const rb=document.getElementById('resendBtn'),ce=document.getElementById('resendCountdown');
+      rb.disabled=true; ce.textContent=rem; rb.innerHTML='Kodu Tekrar Gönder (<span id="resendCountdown">'+rem+'s</span>)';
+      if(_resendTimer)clearInterval(_resendTimer);
+      _resendTimer=setInterval(()=>{ rem--; document.getElementById('resendCountdown').textContent=rem+'s'; if(rem<=0){ clearInterval(_resendTimer); rb.disabled=false; rb.textContent='Kodu Tekrar Gönder'; } },1000);
+    }
+
+    document.getElementById('resendBtn').addEventListener('click', async ()=>{
+      const rb=document.getElementById('resendBtn'); rb.disabled=true;
+      try{
+        const res=await fetch('/api/auth/send-otp.php',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({phone:_phone,purpose:'reset_password'}) });
+        const json=await res.json();
+        if(json.debug_code)alert('[DEBUG] Yeni OTP: '+json.debug_code);
+        startResendCountdown(); hideErr('err2');
+      }catch{ rb.disabled=false; }
+    });
+
+    document.getElementById('backTo1').addEventListener('click',()=>{ if(_resendTimer)clearInterval(_resendTimer); goStep(1); document.getElementById('otpInput').value=''; hideErr('err2'); });
+
+    // Adım 2: OTP doğrula
+    document.getElementById('form2').addEventListener('submit', async e=>{
+      e.preventDefault(); hideErr('err2');
+      const code=(document.getElementById('otpInput').value||'').trim();
+      if(code.length!==6){ showErr('err2','6 haneli kodu eksiksiz girin'); return; }
+      const btn=document.getElementById('btn2'); setLoad(btn,true);
+      try{
+        const res=await fetch('/api/auth/verify-otp.php',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({phone:_phone,code,purpose:'reset_password'}) });
+        const json=await res.json();
+        if(!json.ok){ showErr('err2',json.error||'Hatalı kod, tekrar dene.'); return; }
+        _otpToken=json.data?.token||code;
+        if(_resendTimer)clearInterval(_resendTimer);
+        goStep(3);
+        setTimeout(()=>document.getElementById('newPassInput').focus(),100);
+      }catch{ showErr('err2','Bağlantı hatası.'); }
+      finally{ setLoad(btn,false); }
+    });
+
+    // Adım 3: Yeni şifre
+    function passStrength(p){ if(!p||p.length<4)return 0; let s=0; if(p.length>=8)s++; if(p.length>=12)s++; if(/[A-Z]/.test(p))s++; if(/[0-9]/.test(p))s++; if(/[^A-Za-z0-9]/.test(p))s++; return s<=1?1:s<=3?2:3; }
+    const LEVELS=['','weak','medium','strong'], HINTS=['','Zayıf — büyük harf veya rakam ekle','Orta — özel karakter ekle (!@#)','✓ Güçlü şifre'];
+    const newPassInput=document.getElementById('newPassInput'), confirmPassInput=document.getElementById('confirmPassInput'), passBar=document.getElementById('passBar'), passHint=document.getElementById('passHint'), btn3=document.getElementById('btn3');
+
+    function validatePass(){ const p=newPassInput.value,c=confirmPassInput.value,lv=passStrength(p); passBar.className='pass-strength-bar '+(p.length>=4?LEVELS[lv]:''); passHint.textContent=p.length>=4?HINTS[lv]:''; btn3.disabled=!(p.length>=8&&(!c||p===c)); }
+    newPassInput.addEventListener('input',validatePass); confirmPassInput.addEventListener('input',validatePass);
+
+    function bindEye(btnId,inputEl){ document.getElementById(btnId).addEventListener('click',()=>{ const s=inputEl.type==='password'; inputEl.type=s?'text':'password'; document.getElementById(btnId).innerHTML=s?'<i class="fa-regular fa-eye-slash"></i>':'<i class="fa-regular fa-eye"></i>'; }); }
+    bindEye('eyeBtn1',newPassInput); bindEye('eyeBtn2',confirmPassInput);
+
+    document.getElementById('form3').addEventListener('submit', async e=>{
+      e.preventDefault(); hideErr('err3');
+      const p=newPassInput.value, c=confirmPassInput.value;
+      if(p.length<8){ showErr('err3','Şifre en az 8 karakter olmalı'); return; }
+      if(p!==c){ showErr('err3','Şifreler eşleşmiyor'); return; }
+      const btn=document.getElementById('btn3'); setLoad(btn,true);
+      try{
+        const res=await fetch('/api/auth/reset-password.php',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({phone:_phone,otp_token:_otpToken,password:p}) });
+        const json=await res.json();
+        if(!json.ok){ showErr('err3',json.error||'Şifre güncellenemedi, tekrar deneyin.'); return; }
+        goStep(4);
+      }catch{ showErr('err3','Bağlantı hatası.'); }
+      finally{ setLoad(btn,false); }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+Options -Indexes
+
+# ── CORS: Yalnızca kendi domain'ine izin ver ────────────────────────────────
+# Prodüksiyon: Access-Control-Allow-Origin header'ı dinamik olarak ayarlanır.
+# Aynı origin'den gelen istekler (SPA) zaten credential cookie gönderir,
+# farklı origin'den gelen isteklere CORS izni verilmez.
+# Eğer harici erişim gerekirse aşağıdaki satırı domain'inize göre güncelleyin:
+# Header always set Access-Control-Allow-Origin "https://webey.com.tr"
+# Header always set Access-Control-Allow-Credentials "true"
+# Header always set Access-Control-Allow-Headers "Content-Type, X-CSRF-Token, X-Requested-With"
+# Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+
+<IfModule mod_headers.c>
+    # Güvenlik başlıkları
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^ - [R=200,L]

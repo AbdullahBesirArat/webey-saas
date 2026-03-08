@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="light"/>
+  <title>Bildirimler</title>
+  <script>(function(){var mq=window.matchMedia('(max-width:1024px)');function a(){document.documentElement.classList.toggle('is-mobile',mq.matches);}a();(mq.addEventListener?mq.addEventListener('change',a):mq.addListener(a));})();</script>
+  <link rel="stylesheet" href="css/settings.css"/>
+  <link rel="stylesheet" href="css/rail.css?v=4"/>
+  <link rel="stylesheet" href="css/mobile-admin.css"/>
+  <link rel="stylesheet" href="css/admin-wb.css"/>
+  <link rel="stylesheet" href="css/wb-transitions.css"/>
+  <link rel="stylesheet" href="css/wb-bottom-nav.css"/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+  <style>
+    .nb-page{padding:28px 24px 80px;max-width:800px;margin:0 auto}
+    .nb-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+    .nb-header h1{font-size:22px;font-weight:800;color:#111827;margin:0 0 4px}
+    .nb-header p{font-size:13px;color:#6b7280;margin:0}
+    .nb-header-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .nb-btn{padding:8px 14px;border-radius:10px;border:1px solid #d1d5db;background:#fff;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;white-space:nowrap}
+    .nb-btn:hover{background:#f3f4f6}
+    .nb-btn.primary{background:#6366f1;color:#fff;border-color:#6366f1}
+    .nb-btn.primary:hover{background:#4f46e5}
+    .live-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#6b7280;padding:5px 10px;background:#f3f4f6;border-radius:20px}
+    .live-dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .nb-tabs{display:flex;gap:4px;border-bottom:2px solid #e5e7eb;margin-bottom:20px;overflow-x:auto}
+    .nb-tab{padding:9px 16px;border:none;background:none;font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;display:flex;align-items:center;gap:6px;transition:color .15s}
+    .nb-tab:hover{color:#374151}
+    .nb-tab.active{color:#6366f1;border-bottom-color:#6366f1}
+    .nb-tab-badge{background:#e0e7ff;color:#3730a3;font-size:10px;font-weight:800;padding:2px 6px;border-radius:20px;min-width:18px;text-align:center}
+    .nb-tab.active .nb-tab-badge{background:#6366f1;color:#fff}
+    .nb-tab-badge.red{background:#fee2e2;color:#b91c1c}
+    .nb-tab.active .nb-tab-badge.red{background:#ef4444;color:#fff}
+    .nb-list{display:flex;flex-direction:column;gap:10px}
+    .nb-card{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid #6366f1;cursor:pointer;transition:box-shadow .15s,opacity .2s;position:relative}
+    .nb-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1)}
+    .nb-card.unread{border-left-color:#6366f1}
+    .nb-card.read{opacity:.55;border-left-color:#d1d5db}
+    .nb-card.type-cancel{border-left-color:#f59e0b}
+    .nb-card.type-cancel.read{border-left-color:#d1d5db}
+    .nb-card-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .nb-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;white-space:nowrap}
+    .badge-booking{background:#e0e7ff;color:#3730a3}
+    .badge-cancel{background:#fef3c7;color:#92400e}
+    .badge-approved{background:#d1fae5;color:#065f46}
+    .badge-rejected{background:#fee2e2;color:#991b1b}
+    .badge-cancelled,.badge-crejected{background:#f3f4f6;color:#374151}
+    .badge-capproved{background:#d1fae5;color:#065f46}
+    .nb-unread-label{font-size:10px;font-weight:800;color:#6366f1;background:#e0e7ff;padding:2px 7px;border-radius:20px;margin-left:4px}
+    .nb-time{font-size:11px;color:#9ca3af;white-space:nowrap;flex-shrink:0}
+    .nb-card-body{font-size:13px;color:#374151;line-height:1.7;margin-bottom:10px}
+    .nb-card-body strong{color:#111827}
+    .nb-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding-top:8px;border-top:1px solid #f3f4f6;margin-top:4px}
+    .nb-action-btn{padding:6px 13px;border-radius:8px;border:1px solid #d1d5db;background:#f9fafb;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s}
+    .nb-action-btn:hover{background:#e5e7eb}
+    .nb-action-btn.approve{background:#6366f1;color:#fff;border-color:#6366f1}
+    .nb-action-btn.approve:hover{background:#4f46e5}
+    .nb-action-btn.approve-cancel{background:#10b981;color:#fff;border-color:#10b981}
+    .nb-action-btn.approve-cancel:hover{background:#059669}
+    .nb-action-btn.reject{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}
+    .nb-action-btn.reject:hover{background:#fecaca}
+    .nb-action-btn.delete{margin-left:auto;background:transparent;color:#9ca3af;border-color:transparent;font-size:12px}
+    .nb-action-btn.delete:hover{color:#ef4444}
+    .nb-empty{text-align:center;padding:64px 20px;color:#9ca3af}
+    .nb-empty .icon{font-size:52px;margin-bottom:12px}
+    .nb-loading{text-align:center;padding:48px;color:#9ca3af;font-size:13px}
+    @media(max-width:768px){.nb-page{padding:16px 12px 90px}}
+  </style>
+</head>
+<body class="has-rail" data-page="bildirimler">
+  <div id="rail-mount" aria-hidden="true"></div>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <div class="title">Bildirim Merkezi</div>
+      <div class="spacer"></div>
+      <a id="brandName" class="logo" href="#"></a>
+    </div>
+  </header>
+  <main class="nb-page">
+    <div class="nb-header">
+      <div>
+        <h1>🔔 Bildirim Merkezi</h1>
+        <p>Tüm zamanlardaki randevu ve iptal bildirimleri kalıcı olarak burada saklanır.</p>
+      </div>
+      <div class="nb-header-actions">
+        <span class="live-badge"><span class="live-dot"></span> Canlı</span>
+        <button class="nb-btn primary" id="btnMarkAllRead" type="button">Tümünü Okundu İşaretle</button>
+      </div>
+    </div>
+    <div class="nb-tabs" role="tablist">
+      <button class="nb-tab active" data-tab="all">Tümü <span class="nb-tab-badge" id="cntAll">0</span></button>
+      <button class="nb-tab" data-tab="unread">Okunmayanlar <span class="nb-tab-badge red" id="cntUnread">0</span></button>
+      <button class="nb-tab" data-tab="booking">Randevular <span class="nb-tab-badge" id="cntBooking">0</span></button>
+      <button class="nb-tab" data-tab="cancellation">İptal Talepleri <span class="nb-tab-badge" id="cntCancel">0</span></button>
+    </div>
+    <div class="nb-list" id="nbList"><div class="nb-loading">⏳ Yükleniyor…</div></div>
+  </main>
+  <nav class="wb-bottom-nav" id="adminBottomNav">
+    <div class="wb-bn-inner">
+      <a class="wb-bn-item" href="calendar.html"><span class="wb-bn-icon material-symbols-rounded">calendar_month</span><span class="wb-bn-label">Takvim</span></a>
+      <a class="wb-bn-item" href="staff.html"><span class="wb-bn-icon material-symbols-rounded">group</span><span class="wb-bn-label">Personel</span></a>
+      <a class="wb-bn-item" href="musterilerim.html"><span class="wb-bn-icon material-symbols-rounded">people</span><span class="wb-bn-label">Müşteri</span></a>
+      <a class="wb-bn-item" href="istatistikler.html"><span class="wb-bn-icon material-symbols-rounded">bar_chart</span><span class="wb-bn-label">İstatistik</span></a>
+      <a class="wb-bn-item is-active" href="bildirimler.html" aria-current="page"><span class="wb-bn-icon material-symbols-rounded">notifications</span><span class="wb-bn-label">Bildirim</span></a>
+    </div>
+  </nav>
+  <script>
+  (function loadRail(){
+    const m=document.getElementById('rail-mount');if(!m)return;
+    const C=['bar-menu.html','/bar-menu.html','../bar-menu.html'];
+    async function t(u){try{const r=await fetch(u,{credentials:'same-origin'});if(!r.ok)throw 0;m.innerHTML=await r.text();m.removeAttribute('aria-hidden');m.querySelectorAll('.rail__btn,nav a').forEach(a=>{const h=(a.getAttribute('href')||'').split(/[?#]/)[0];if(/(^|\/)bildirimler\.html$/i.test(h))a.setAttribute('aria-current','page');});return true;}catch{return false;}}
+    (async()=>{for(const u of C){if(await t(u))return;}})();
+  })();
+  </script>
+  <script>
+  (function(){
+    'use strict';
+    let ALL=[], tab='all', timer=null;
+    const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function fmtDT(s){if(!s)return '';const d=new Date(String(s).replace(' ','T'));if(isNaN(d))return s;const p=n=>String(n).padStart(2,'0');return p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' '+p(d.getHours())+':'+p(d.getMinutes());}
+    async function api(url,o){const r=await fetch(url,{credentials:'same-origin',...(o||{})});if(r.status===401){location.href='admin-register-login.html';return null;}return r.json();}
+    async function post(url,body){return api(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});}
+    async function load(){const res=await api('/api/notifications/list.php?limit=200');if(res&&res.ok){ALL=res.data.notifications||[];render();}}
+    function filtered(){if(tab==='unread')return ALL.filter(n=>!n.isRead);if(tab==='booking')return ALL.filter(n=>n.type==='booking');if(tab==='cancellation')return ALL.filter(n=>n.type==='cancellation');return ALL;}
+    function counts(){
+      document.getElementById('cntAll').textContent=ALL.length;
+      document.getElementById('cntUnread').textContent=ALL.filter(n=>!n.isRead).length;
+      document.getElementById('cntBooking').textContent=ALL.filter(n=>n.type==='booking').length;
+      document.getElementById('cntCancel').textContent=ALL.filter(n=>n.type==='cancellation').length;
+    }
+    const BADGES={
+      pending_booking:'<span class="nb-badge badge-booking">&#128276; Yeni Randevu</span>',
+      pending_cancellation:'<span class="nb-badge badge-cancel">&#9888;&#65039; &#304;ptal Talebi</span>',
+      approved:'<span class="nb-badge badge-approved">&#9989; Onayland&#305;</span>',
+      rejected:'<span class="nb-badge badge-rejected">&#10060; Reddedildi</span>',
+      cancelled:'<span class="nb-badge badge-cancelled">&#128683; &#304;ptal Edildi</span>',
+      cancel_approved:'<span class="nb-badge badge-capproved">&#9989; &#304;ptal Onayland&#305;</span>',
+      cancel_rejected:'<span class="nb-badge badge-crejected">&#128260; &#304;ptal Reddedildi</span>',
+    };
+    function badge(n){const k=n.result==='pending'?'pending_'+n.type:n.result;return BADGES[k]||('<span class="nb-badge badge-booking">'+esc(n.result)+'</span>');}
+    function card(n){
+      const rc=n.isRead?'read':'unread', tc=n.type==='cancellation'?'type-cancel':'';
+      const utag=!n.isRead?'<span class="nb-unread-label">Okunmad&#305;</span>':'';
+      const staff=n.staffName?' &bull; '+esc(n.staffName):'';
+      const svc=n.serviceName?'&#9986;&#65039; '+esc(n.serviceName)+staff+'<br>':'';
+      const date=n.startFmt?'&#128197; '+esc(n.startFmt)+'<br>':'';
+      const phone=n.customerPhone?' &bull; '+esc(n.customerPhone):'';
+      let acts='';
+      if(n.result==='pending'){
+        const aid=esc(n.appointmentId||'');
+        acts=n.type==='booking'
+          ?'<button class="nb-action-btn approve" data-a="approve" data-id="'+n.id+'" data-appt="'+aid+'">&#9989; Onayla</button><button class="nb-action-btn reject" data-a="reject" data-id="'+n.id+'" data-appt="'+aid+'">&#10060; Reddet</button>'
+          :'<button class="nb-action-btn approve-cancel" data-a="approve-cancel" data-id="'+n.id+'" data-appt="'+aid+'">&#9989; &#304;ptali Onayla</button><button class="nb-action-btn reject" data-a="reject-cancel" data-id="'+n.id+'" data-appt="'+aid+'">&#128260; Reddet</button>';
+      }
+      return '<div class="nb-card '+rc+' '+tc+'" data-nid="'+n.id+'" data-read="'+(n.isRead?1:0)+'">'
+        +'<div class="nb-card-head"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">'+badge(n)+utag+'</div><span class="nb-time">'+fmtDT(n.createdAt)+'</span></div>'
+        +'<div class="nb-card-body"><strong>'+esc(n.customerName||'&mdash;')+'</strong>'+phone+'<br>'+svc+date+'</div>'
+        +'<div class="nb-actions">'+acts+'<button class="nb-action-btn delete" data-a="delete" data-id="'+n.id+'">&#128465; Sil</button></div>'
+        +'</div>';
+    }
+    function render(){
+      counts();
+      const list=document.getElementById('nbList'), items=filtered();
+      if(!items.length){list.innerHTML='<div class="nb-empty"><div class="icon">&#128276;</div><p>Bu b&ouml;l&uuml;mde bildirim yok.</p></div>';return;}
+      list.innerHTML=items.map(card).join('');
+      document.querySelectorAll('.nb-card').forEach(el=>{
+        el.addEventListener('click',async e=>{
+          if(e.target.closest('.nb-action-btn'))return;
+          const id=parseInt(el.dataset.nid);
+          if(el.dataset.read==='0'){
+            await post('/api/notifications/mark-read.php',{ids:[id]});
+            const n=ALL.find(x=>x.id===id);if(n)n.isRead=true;
+            el.classList.replace('unread','read');el.dataset.read='1';el.querySelector('.nb-unread-label')?.remove();counts();
+          }
+        });
+        el.querySelectorAll('.nb-action-btn').forEach(btn=>{
+          btn.addEventListener('click',async e=>{
+            e.stopPropagation();
+            const action=btn.dataset.a, nid=parseInt(btn.dataset.id), appt=btn.dataset.appt;
+            btn.disabled=true;const orig=btn.textContent;btn.textContent='&#9203;';
+            const done=async(field,val)=>{const n=ALL.find(x=>x.id===nid);if(n){n[field]=val;n.isRead=true;}await post('/api/notifications/mark-read.php',{ids:[nid]});render();};
+            if(action==='delete'){
+              const r=await post('/api/notifications/delete.php',{id:nid});
+              if(r&&r.ok){ALL=ALL.filter(x=>x.id!==nid);render();}else{btn.disabled=false;btn.textContent=orig;}
+            } else if(action==='approve'){
+              const r=await post('/api/calendar/update-appointment.php',{id:appt,status:'approved'});
+              if(r&&r.ok)await done('result','approved');else{btn.disabled=false;btn.textContent=orig;alert(r?.error||'Hata');}
+            } else if(action==='reject'){
+              const r=await post('/api/calendar/update-appointment.php',{id:appt,status:'cancelled'});
+              if(r&&r.ok)await done('result','rejected');else{btn.disabled=false;btn.textContent=orig;alert(r?.error||'Hata');}
+            } else if(action==='approve-cancel'){
+              const r=await post('/api/calendar/approve-cancellation.php',{id:appt});
+              if(r&&r.ok)await done('result','cancel_approved');else{btn.disabled=false;btn.textContent=orig;alert(r?.error||'Hata');}
+            } else if(action==='reject-cancel'){
+              const r=await post('/api/calendar/reject-cancellation.php',{id:appt});
+              if(r&&r.ok)await done('result','cancel_rejected');else{btn.disabled=false;btn.textContent=orig;alert(r?.error||'Hata');}
+            }
+          });
+        });
+      });
+    }
+    document.querySelectorAll('.nb-tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.nb-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');tab=t.dataset.tab;render();}));
+    document.getElementById('btnMarkAllRead')?.addEventListener('click',async()=>{await post('/api/notifications/mark-all-read.php',{});ALL.forEach(n=>n.isRead=true);render();});
+    (async()=>{
+      const sess=await api('/api/session/me.php');
+      if(!sess?.ok||sess?.data?.role!=='admin'){location.href='admin-register-login.html';return;}
+      if(sess.data.businessName){const el=document.getElementById('brandName');if(el)el.textContent=sess.data.businessName;}
+      await load();
+      timer=setInterval(load,30000);
+      document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+    })();
+  })();
+  </script>
+  <script src="js/wb-transitions.js" defer></script>
+  <script src="js/wb-notifications.js"></script>
+</body>
+</html>

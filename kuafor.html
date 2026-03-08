@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kuaförler – Webey</title>
+  <meta name="description" content="İstanbul’daki kuaförleri il/ilçe/mahalle ve açık saatlere göre filtreleyin.">
+  <!-- ═══ SEO / Open Graph ═══ -->
+  <meta name="robots" content="index,follow" />
+  <link rel="canonical" href="https://webey.com.tr/kuafor.html" />
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:site_name"   content="Webey" />
+  <meta property="og:locale"      content="tr_TR" />
+  <meta property="og:title"       content="Kuaförler – Webey | Yakınındaki Salonları Keşfet" />
+  <meta property="og:description" content="İstanbul ve tüm Türkiye'deki kuaförleri il, ilçe ve açık saatlere göre filtrele. Fiyat ve yorumları gör, randevu al." />
+  <meta property="og:url"         content="https://webey.com.tr/kuafor.html" />
+  <meta property="og:image"       content="https://webey-cdn.b-cdn.net/optimized/img_693575c2791475.90513797.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="Kuaförler – Webey | Yakınındaki Salonları Keşfet" />
+  <meta name="twitter:description" content="İstanbul ve tüm Türkiye'deki kuaförleri il, ilçe ve açık saatlere göre filtrele. Fiyat ve yorumları gör, randevu al." />
+  <meta name="twitter:image"       content="https://webey-cdn.b-cdn.net/optimized/img_693575c2791475.90513797.jpg" />
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Kuaförler – Webey","description":"Türkiye genelinde kuaför ve güzellik salonu listesi","url":"https://webey.com.tr/kuafor.html","isPartOf":{"@type":"WebSite","name":"Webey","url":"https://webey.com.tr"}}</script>
+  <!-- ════════════════════════ -->
+
+  <!-- Tek tema (light) -->
+  <meta name="theme-color" content="#0b6ef4">
+  <meta name="color-scheme" content="light" />
+
+  <!-- HTML no-cache (özellikle dev için) -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <!-- Build/version damgası -->
+  <script>
+    window.WB_VER = "2025-11-08-0003";
+  </script>
+
+  <!-- Performans: font preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css?v=2025-11-08-0003" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/auth-modal.css" />
+  <link rel="stylesheet" href="css/kuafor.css?v=2025-11-08-0003">
+  <link rel="stylesheet" href="css/kuafor-enhanced.css?v=2025-11-08-0003">
+  <link rel="stylesheet" href="css/wb-transitions.css" />
+  <link rel="stylesheet" href="css/wb-bottom-nav.css" />
+  <link rel="stylesheet" href="css/mobile-user.css" />
+  <link rel="stylesheet" href="css/kuafor-redesign.css?v=2026-03-04">
+
+  <!-- Flash/stacking önlemleri (CSS/JS gelene kadar güvenli başlangıç) -->
+  <style>
+    body.no-scroll{ overflow:hidden !important; }
+    /* Tarih katmanı (başlangıç) */
+    #sb-date-overlay{
+      position:fixed; inset:0; z-index:10040;
+      display:none; place-items:center;
+      background:rgba(0,0,0,.45);
+    }
+    #sb-date-overlay.open{ display:grid; }
+    /* Saat katmanı: her zaman üstte */
+    #timeOverlay{
+      position:fixed; inset:0; z-index:2147483000; /* JS ile de inline atanıyor */
+      display:none; place-items:center;
+      background:rgba(0,0,0,.45);
+    }
+    #timeOverlay.active{ display:grid; }
+    /* Diğer modal (auth vb.) */
+    .modal-overlay{ z-index:10030; }
+  </style>
+</head>
+<body>
+
+  <!-- === HEADER / NAVBAR (anasayfadakiyle aynı yapı) === -->
+  <header role="banner">
+    <!-- MOBİL NAVBAR (sadece ≤767px görünür) -->
+    <div class="mobile-navbar" id="mobileNavbar" aria-label="Mobil ana menü">
+
+      <!-- EXPANDED: sadece en üstteyken görünür -->
+      <div class="mob-expanded" id="mobExpanded">
+        <!-- Satır 1: İşletmeni Listele -->
+        <div class="mob-top-bar">
+          <a href="isletmeni-listele.html?v=2025-11-08-0003" class="mob-list-btn">
+            İşletmeni Listele <i class="fas fa-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+        <!-- Satır 2: Logo -->
+        <div class="mob-logo-row">
+          <a href="index.html?v=2025-11-08-0003" class="logo-text" id="logoBtn" aria-label="Ana sayfa">Webey</a>
+        </div>
+        <!-- Satır 3: Konum + Zaman -->
+        <div class="mob-search-area mob-extra-search" role="search">
+          <div class="mob-search-row">
+            <div class="mob-search-box mob-search-loc">
+              <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+              <input id="qLocMobile" type="text" placeholder="Neresi?" aria-label="Konum" autocomplete="off"/>
+            </div>
+            <button
+              id="qWhenMobile"
+              class="mob-search-box mob-when-box"
+              type="button"
+              aria-label="Zaman seç"
+              aria-haspopup="dialog"
+              aria-controls="timeOverlay"
+              aria-expanded="false"
+            >
+              <i class="fas fa-clock" aria-hidden="true"></i>
+              <span class="mob-when-text">Ne zaman?</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPACT: her zaman görünür (scroll sonrası tek satır) -->
+      <div class="mob-compact-row">
+        <a href="index.html?v=2025-11-08-0003" class="mob-compact-logo logo-text" aria-label="Ana sayfa">Webey</a>
+        <div class="mob-search-box mob-search-main" role="search">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="qSvcMobile" type="text" placeholder="Hizmet veya işletme ara" aria-label="Hizmet veya işletme ara" autocomplete="off"/>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DESKTOP NAVBAR (≥768px) -->
+    <nav class="navbar" id="mainNavbar" role="navigation" aria-label="Ana menü">
+      <a href="index.html?v=2025-11-08-0003" class="logo-text" aria-label="Ana sayfa">Webey</a>
+
+      <div class="search-section" role="search">
+        <div class="search-box">
+          <i class="fas fa-search" aria-hidden="true"></i>
+          <input id="qSvc" type="text" placeholder="Hizmet veya işletme ara" aria-label="Hizmet veya işletme ara" autocomplete="off"/>
+        </div>
+        <div class="search-box">
+          <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+          <input id="qLoc" type="text" placeholder="Neresi?" aria-label="Konum" autocomplete="off"/>
+        </div>
+        <div class="search-box">
+          <i class="fas fa-clock" aria-hidden="true"></i>
+          <button id="qWhen" class="when-btn" type="button" aria-label="Zaman seç" aria-haspopup="dialog" aria-controls="timeOverlay" aria-expanded="false">
+            <span class="when-text">Ne zaman?</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="right-section">
+        <button class="profile open-auth" type="button" aria-label="Giriş Yap / Kayıt Ol" data-profile-btn>
+          <i class="fas fa-user-circle" aria-hidden="true"></i>
+          <span class="auth-text">Giriş Yap / Kayıt Ol</span>
+        </button>
+        <a href="isletmeni-listele.html?v=2025-11-08-0003" class="list-btn">İşletmeni Listele</a>
+      </div>
+    </nav>
+  </header>
+<!-- Scroll sentinel: 60px noktasında navbar collapse tetikler -->
+<!-- Filtre şeridi -->
+  <div class="filters-wrap">
+    <div class="container">
+      <div class="filters" role="region" aria-label="Filtreler">
+      <!-- Ana state-select’ler DOM’da durur; JS bunları gizleyip kullanır -->
+      <label for="fProvince" class="sr-only">İl</label>
+      <select id="fProvince" aria-label="İl" style="display:none">
+        <option value="İstanbul" selected>Tüm İstanbul</option>
+      </select>
+
+      <label for="fDistrict" class="sr-only">İlçe</label>
+      <select id="fDistrict" aria-label="İlçe" style="display:none" disabled>
+        <option value="">Tüm İlçeler</option>
+      </select>
+
+      <label for="fNeighborhood" class="sr-only">Mahalle</label>
+      <select id="fNeighborhood" aria-label="Mahalle" style="display:none" disabled>
+        <option value="">Tüm Mahalleler</option>
+      </select>
+
+      <!-- Not: “Filtreler” ve “Kayıtlı adresim” butonlarını JS ekler -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Sort / Hızlı Filtre Çubuğu -->
+  <div id="sortBar">
+    <div class="container">
+      <div class="sort-bar-inner">
+        <div class="sort-left">
+          <span class="sort-label">Sırala</span>
+          <div class="sort-chips" role="group" aria-label="Sıralama seçenekleri">
+            <button class="wb-chip wb-chip--active" data-sort="newest" type="button">En Yeni</button>
+            <button class="wb-chip" data-sort="rating" type="button">⭐ Puan</button>
+            <button class="wb-chip" data-sort="price_asc" type="button">₺ Ucuz</button>
+            <button class="wb-chip" data-sort="price_desc" type="button">₺ Pahalı</button>
+          </div>
+        </div>
+        <div class="sort-right">
+          <label id="openNowLabel" class="open-now-label">
+            <div id="openNowToggle" class="wb-toggle" role="switch" aria-checked="false" tabindex="0">
+              <span class="wb-toggle-knob"></span>
+            </div>
+            <span class="open-now-text">
+              <span class="open-dot"></span>
+              Şu an açık
+            </span>
+          </label>
+          <span class="sort-divider"></span>
+          <button id="mapViewBtn" type="button" class="wb-map-btn">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            Harita
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Harita Paneli (başta gizli) -->
+  <div id="mapPanel" style="display:none;height:480px;width:100%;position:relative;">
+    <div id="leafletMap" style="height:100%;width:100%;"></div>
+    <button id="closeMapBtn" type="button" style="position:absolute;top:12px;right:12px;z-index:1000;background:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15);color:#374151;">✕ Listeye Dön</button>
+  </div>
+
+  <!-- === İÇERİK === -->
+  <main id="mainContent" class="list-page" role="main">
+    <div class="container main-content">
+
+    <div id="scrollSentinel" style="height:1px;width:100%;margin:0;padding:0;"></div>
+    <section id="salonGrid" class="grid" aria-label="Kuaför listesi"></section>
+
+    <div id="emptyState" class="empty muted" style="display:none">
+      Hiç sonuç yok. Filtreleri değiştirmeyi deneyin.
+      <!-- JS gerektiğinde buraya .sugg-wrap içine öneri butonlarını ekler -->
+    </div>
+
+
+    <!-- Load More -->
+    <div id="loadMoreWrap" style="display:none;text-align:center;padding:24px 0 8px;">
+      <button id="loadMoreBtn" type="button" class="wb-load-more-btn">Daha Fazla Göster</button>
+    </div>
+
+    <template id="skeletonTpl">
+      <div class="card skel" aria-hidden="true">
+        <div class="img"></div>
+        <div class="lines">
+          <div class="l w1"></div>
+          <div class="l w2"></div>
+          <div class="l w3"></div>
+        </div>
+      </div>
+    </template>
+
+    <noscript>
+      <div class="empty muted" style="margin-top:12px">
+        Bu sayfa JavaScript gerektirir. Lütfen tarayıcınızda JavaScript'i etkinleştirin.
+      </div>
+    </noscript>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="foot-main">
+      <div class="foot-col foot-col-brand">
+        <span class="foot-logo">Webey</span>
+        <p class="foot-tagline">Yakınındaki kuaförleri keşfet,<br>saniyeler içinde randevu al.</p>
+        <div class="foot-social">
+          <a class="social-btn" href="https://www.instagram.com/webey" target="_blank" rel="noopener" aria-label="Instagram" style="text-decoration:none">
+            <i class="fab fa-instagram" aria-hidden="true"></i>
+          </a>
+          <a class="social-btn" href="https://www.tiktok.com/@webey" target="_blank" rel="noopener" aria-label="TikTok" style="text-decoration:none">
+            <i class="fab fa-tiktok" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+      <div class="foot-col">
+        <p class="foot-col-title">Platform</p>
+        <ul class="foot-links">
+          <li><a href="index.html">Kuaför Bul</a></li>
+          <li><a href="isletmeni-listele.html">İşletmeni Listele</a></li>
+          <li><a href="fiyat.html">Fiyatlandırma</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <p class="foot-col-title">Kurumsal</p>
+        <ul class="foot-links">
+          <li><a href="hakkimizda.html">Hakkımızda</a></li>
+          <li><a href="iletisim.html">İletişim</a></li>
+          <li><a href="sss.html">Sık Sorulan Sorular</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <p class="foot-col-title">Yasal</p>
+        <ul class="foot-links">
+          <li><a href="gizlilik-politikasi.html">Gizlilik Politikası</a></li>
+          <li><a href="kullanim-kosullari.html">Kullanım Koşulları</a></li>
+          <li><a href="cerez-politikasi.html">Çerez Politikası</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span class="copyright">© 2026 Webey. Tüm hakları saklıdır.</span>
+      <span style="font-size:12px;color:rgba(255,255,255,.25)">KVKK Uyumlu &nbsp;·&nbsp; Türkiye&#39;de Geliştirildi 🇹🇷</span>
+    </div>
+  </footer>
+
+  <!-- =========================
+       KULLANICI AKIŞI MODALLARI
+       (anasayfadakiyle birebir)
+       ========================= -->
+
+  <!-- AUTH MODALLARI — Modern Redesign -->
+
+  <!-- ── 1. AUTH: Giriş / Kayıt ── -->
+  <div id="authModal" class="modal-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="loginRegisterTitle" aria-hidden="true" hidden>
+    <div class="modal-box">
+      <div class="auth-modal-header">
+        <div class="auth-header-spacer"></div>
+        <div class="auth-steps" aria-hidden="true"></div>
+        <button class="modal-close" type="button" aria-label="Kapat">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="auth-container">
+        <h2 id="loginRegisterTitle" class="auth-title">Hoş Geldin</h2>
+        <p class="auth-subtitle">Randevu almak için giriş yap veya kayıt ol.</p>
+
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" data-tab="login" type="button" role="tab" aria-selected="true">Giriş Yap</button>
+          <button class="auth-tab" data-tab="signup" type="button" role="tab" aria-selected="false">Kayıt Ol</button>
+        </div>
+
+        <!-- GİRİŞ -->
+        <form id="loginForm" class="auth-form active" data-form="login" autocomplete="off" role="tabpanel">
+          <div class="phone-row">
+            <div class="cc-box" aria-hidden="true">
+              <span class="flag">🇹🇷</span>
+              <span class="cc">+90</span>
+            </div>
+            <input class="auth-input phone-input" type="tel" name="phone" placeholder="5xx xxx xx xx"
+                   inputmode="numeric" maxlength="13" autocomplete="tel-national"
+                   data-phone required aria-label="Telefon numarası" />
+          </div>
+          <div class="password-wrap">
+            <input class="auth-input" type="password" name="password" placeholder="Şifre"
+                   autocomplete="current-password" aria-label="Şifre" required minlength="8" />
+            <button type="button" class="toggle-eye" aria-label="Şifreyi göster/gizle">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <div class="auth-link-row">
+            <a id="forgotLink" href="#" class="auth-link">Şifremi unuttum</a>
+          </div>
+          <div id="loginError" class="error" aria-live="assertive"></div>
+          <button type="submit" class="auth-btn" id="btnLogin">Giriş Yap</button>
+        </form>
+
+        <!-- KAYIT -->
+        <form id="signupForm" class="auth-form" data-form="signup" autocomplete="one-time-code" role="tabpanel">
+          <div class="phone-row">
+            <div class="cc-box" aria-hidden="true">
+              <span class="flag">🇹🇷</span>
+              <span class="cc">+90</span>
+            </div>
+            <input class="auth-input phone-input" type="tel" name="phone" placeholder="5xx xxx xx xx"
+                   inputmode="numeric" maxlength="13" autocomplete="tel-national"
+                   data-phone required aria-label="Telefon numarası" />
+          </div>
+          <p class="phone-hint">Türkiye numarası · 10 hane · 5xx ile başlamalı</p>
+          <div id="signupError" class="error" aria-live="assertive"></div>
+          <button type="submit" class="auth-btn" id="btnSendOtp">Devam Et →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. OTP (artık kullanılmıyor ama kalıyor) ── -->
+  <div id="otpModal" class="modal-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="otpTitle" aria-hidden="true" hidden>
+    <div class="modal-box">
+      <div class="auth-modal-header">
+        <button class="modal-back" type="button" id="btnBackOtp" aria-label="Geri">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="auth-steps" aria-hidden="true">
+          <div class="auth-step-dot done"></div>
+          <div class="auth-step-dot active"></div>
+          <div class="auth-step-dot"></div>
+        </div>
+        <button class="modal-close" type="button" aria-label="Kapat">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="auth-container">
+        <h2 id="otpTitle" class="auth-title">SMS Kodu</h2>
+        <p class="auth-subtitle">Telefonuna gönderilen 6 haneli kodu gir.</p>
+        <form id="otpForm" class="auth-form active" data-form="otp" autocomplete="one-time-code">
+          <input class="auth-input otp-input" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6"
+                 name="code" placeholder="- - - - - -" required aria-label="SMS kodu"
+                 style="text-align:center;font-size:22px;letter-spacing:10px;font-weight:700" />
+          <div id="otpError" class="error" aria-live="assertive"></div>
+          <button type="submit" class="auth-btn" id="btnVerifyOtp">Doğrula</button>
+          <button type="button" class="resend-otp" id="btnResendOtp"
+                  style="display:block;width:100%;margin-top:10px;background:none;border:none;color:#6366f1;font-size:13.5px;font-weight:600;cursor:pointer;padding:8px;font-family:Sora,sans-serif">
+            Kodu Tekrar Gönder
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. ŞİFRE ── -->
+  <div id="passModal" class="modal-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="passTitle" aria-hidden="true" hidden>
+    <div class="modal-box">
+      <div class="auth-modal-header">
+        <button class="modal-back" type="button" id="btnBackPass" aria-label="Geri">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="auth-steps" aria-hidden="true">
+          <div class="auth-step-dot active"></div>
+          <div class="auth-step-dot"></div>
+          <div class="auth-step-dot"></div>
+        </div>
+        <button class="modal-close" type="button" aria-label="Kapat">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="auth-container">
+        <h2 id="passTitle" class="auth-title">Şifre Oluştur</h2>
+        <p class="auth-subtitle">En az 8 karakter — harf, rakam karıştırabilirsin.</p>
+        <form id="passForm" class="auth-form active" data-form="pass" autocomplete="new-password">
+          <div class="password-wrap">
+            <input class="auth-input" type="password" name="password" placeholder="Şifre"
+                   aria-label="Şifre" required minlength="8" />
+            <button type="button" class="toggle-eye" aria-label="Şifreyi göster/gizle">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <div class="pass-strength" aria-hidden="true">
+            <div class="pass-strength-bar" id="passStrBar"></div>
+          </div>
+          <div class="password-wrap">
+            <input class="auth-input" type="password" name="confirm" placeholder="Şifre (tekrar)"
+                   aria-label="Şifre tekrar" required minlength="8" />
+            <button type="button" class="toggle-eye" aria-label="Şifreyi göster/gizle">
+              <i class="fa-regular fa-eye"></i>
+            </button>
+          </div>
+          <div id="passError" class="error" aria-live="assertive"></div>
+          <button type="submit" class="auth-btn" id="btnPassNext" disabled>Devam Et →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. KİMLİK ── -->
+  <div id="nameModal" class="modal-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="nameTitle" aria-hidden="true" hidden>
+    <div class="modal-box">
+      <div class="auth-modal-header">
+        <button class="modal-back" type="button" id="btnBackName" aria-label="Geri">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="auth-steps" aria-hidden="true">
+          <div class="auth-step-dot done"></div>
+          <div class="auth-step-dot active"></div>
+          <div class="auth-step-dot"></div>
+        </div>
+        <button class="modal-close" type="button" aria-label="Kapat">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="auth-container">
+        <h2 id="nameTitle" class="auth-title">Kimlik Bilgileri</h2>
+        <p class="auth-subtitle">Randevu aldığında salonun bu bilgileri görecek — doğru gir.</p>
+        <form id="nameForm" class="auth-form active" data-form="name">
+          <div class="field-row-2">
+            <input class="auth-input" type="text" name="firstName" placeholder="Ad"
+                   autocomplete="given-name" required />
+            <input class="auth-input" type="text" name="lastName" placeholder="Soyad"
+                   autocomplete="family-name" required />
+          </div>
+          <!-- DOB: visible trigger button + hidden input (dob-picker bağlanır) -->
+          <button type="button" id="dobTriggerBtn" class="dob-trigger placeholder"
+                  aria-label="Doğum tarihi seç" aria-haspopup="dialog">
+            <span id="dobDisplay">Doğum Tarihi</span>
+            <i class="fas fa-calendar-alt dob-icon"></i>
+          </button>
+          <input type="text" name="birthday" id="birthdayInput" tabindex="-1"
+                 aria-hidden="true" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px" />
+          <div id="nameError" class="error" aria-live="assertive"></div>
+          <button type="submit" class="auth-btn" id="btnNameNext" disabled>Devam Et →</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. ADRES ── -->
+  <div id="addressModal" class="modal-overlay" role="dialog" aria-modal="true"
+       aria-labelledby="addressTitle" aria-hidden="true" hidden>
+    <div class="modal-box">
+      <div class="auth-modal-header">
+        <button class="modal-back" type="button" id="btnBackAddress" aria-label="Geri">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="auth-steps" aria-hidden="true">
+          <div class="auth-step-dot done"></div>
+          <div class="auth-step-dot done"></div>
+          <div class="auth-step-dot active"></div>
+        </div>
+        <button class="modal-close" type="button" aria-label="Kapat">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="auth-container">
+        <h2 id="addressTitle" class="auth-title">Konumun</h2>
+        <p class="auth-subtitle">Yakınındaki salonları önermek için şehir bilgine ihtiyacımız var.</p>
+        <form id="addressForm" class="auth-form active" data-form="address" autocomplete="off">
+          <div class="field-row-3">
+            <select class="auth-input" id="citySelect" required aria-label="Şehir"></select>
+            <select class="auth-input" id="districtSelect" required aria-label="İlçe"></select>
+            <select class="auth-input" id="neighborhoodSelect" required aria-label="Mahalle"></select>
+          </div>
+          <div id="addressError" class="error" aria-live="assertive"></div>
+          <button type="submit" class="auth-btn" id="btnFinish" disabled>Kaydı Tamamla ✓</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- reCAPTCHA (görünmez) -->
+  <div id="recaptcha-container" class="sr-only"></div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="toastWrap" aria-live="polite"></div>
+
+  <!-- Tarih seçici overlay — geçmiş günler JS ile devre dışı bırakılır -->
+  <div id="sb-date-overlay" aria-hidden="true">
+    <div class="sb-date-box" role="dialog" aria-modal="true" aria-label="Tarih seç">
+      <button class="sb-date-close" aria-label="Kapat"><i class="fas fa-times" aria-hidden="true"></i></button>
+      <div class="sb-date-head">
+        <button class="nav prev" type="button" aria-label="Önceki ay">&lsaquo;</button>
+        <div class="month" aria-live="polite"></div>
+        <button class="nav next" type="button" aria-label="Sonraki ay">&rsaquo;</button>
+      </div>
+      <div class="days-head" aria-hidden="true">
+        <span>Pzt</span><span>Salı</span><span>Çar</span><span>Per</span><span>Cuma</span><span>Cmt</span><span>Paz</span>
+      </div>
+      <div class="grid" aria-live="polite"></div>
+      <div class="actions">
+        <button class="clear" type="button">Temizle</button>
+        <button class="ok" type="button">Seç</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAAT SEÇİCİ OVERLAY — hem navbar hem filtre için ortak -->
+  <div id="timeOverlay" aria-hidden="true">
+    <div class="time-box" role="dialog" aria-modal="true" aria-labelledby="timeTitle">
+      <button class="time-close" type="button" aria-label="Kapat">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+
+      <!-- Başlık: JS seçili tarihi küçük yazıyla ekler -->
+      <h3 id="timeTitle" class="modal-title-center">Saat Seç</h3>
+
+      <!-- Saatler (JS ile doldurulur) -->
+      <div id="timeGrid" class="time-grid" role="listbox" aria-multiselectable="true" aria-label="Uygun saatler"></div>
+
+      <div class="time-actions" style="display:flex;gap:10px;justify-content:flex-end">
+        <!-- (Yeni) Tarihi değiştir -->
+        <button type="button" class="btn" data-action="pick-date">Tarihi Değiştir</button>
+        <button type="button" class="btn btn-danger" data-action="cancel">İptal</button>
+        <button type="button" class="btn" data-action="clear">Temizle</button>
+        <button type="button" class="auth-btn" data-action="apply" style="min-width:140px">Seç</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOT: Filtre overlay’i JS oluşturur (duplikasyon olmaması için HTML’de yok) -->
+
+  <!-- ÖNEMLİ: Global arama bağlayıcısını devre dışı bırak (çakışmayı önler) -->
+  <script>window.WB_DISABLE_NAV_SUGGEST = true;</script>
+
+  <!-- Ortak davranışlar (navbar + auth trigger’ları) -->
+  <script type="module" src="js/index.js?v=2025-11-08-0003"></script>
+
+  <!-- Liste sayfası verileri (gün+saat akışı, z-index fix’leri) -->
+  <script type="module" src="js/kuafor.js?v=2025-11-08-0004"></script>
+
+  <!-- Bu sayfanın arama popover’ı (index’teki ile aynı görünüm/akış) -->
+  <script type="module" src="js/searchbar.js?v=2025-11-08-0003"></script>
+  <script src="js/wb-transitions.js" defer></script>
+  <script src="js/wb-bottom-nav.js" defer></script>
+  <script src="js/wb-user-notifications.js" defer></script>
+  <script src="js/kuafor-map.js" defer></script>
+  <script src="js/wb-navbar-mobile.js" defer></script>
+  <!-- Mobil navbar davranışları -->
+  <script>
+  (function() {
+
+    /* ── Mobil ↔ Desktop input senkronizasyonu ── */
+    function initMobileSearch() {
+      var pairs = [
+        ['qSvcMobile', 'qSvc'],
+        ['qLocMobile', 'qLoc']
+      ];
+      pairs.forEach(function(p) {
+        var mob = document.getElementById(p[0]);
+        var dsk = document.getElementById(p[1]);
+        if (!mob || !dsk) return;
+        mob.addEventListener('input', function() {
+          dsk.value = mob.value;
+          dsk.dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        dsk.addEventListener('input', function() { mob.value = dsk.value; });
+        mob.value = dsk.value || '';
+      });
+
+      /* Mobil zaman butonu */
+      var mWhen = document.getElementById('qWhenMobile');
+      if (mWhen) {
+        mWhen.addEventListener('click', function(e) {
+          e.preventDefault();
+          if (typeof window.WB_openDateOverlay === 'function') {
+            window.WB_openDateOverlay();
+          } else {
+            var real = document.getElementById('qWhen');
+            if (real) real.click();
+          }
+        });
+        /* filled sınıfını senkronize et */
+        var realWhen = document.getElementById('qWhen');
+        if (realWhen) {
+          new MutationObserver(function() {
+            var txt = realWhen.querySelector('.when-text');
+            var filled = realWhen.classList.contains('filled');
+            mWhen.classList.toggle('filled', filled);
+            var span = mWhen.querySelector('.mob-when-text');
+            if (span) span.textContent = (txt && filled) ? txt.textContent : 'Ne zaman?';
+          }).observe(realWhen, { attributes: true, attributeFilter: ['class'] });
+        }
+      }
+    }
+
+    /* ── Navbar collapse: wb-navbar-mobile.js tarafından yönetilir ── */
+    /* filters-wrap + list-page konumlaması için event dinle */
+    function updateLayout() {
+      if (window.innerWidth > 767) return;
+      var nb = document.getElementById('mobileNavbar');
+      var fw = document.querySelector('.filters-wrap');
+      var lp = document.querySelector('.list-page');
+      if (!nb || !fw) return;
+      var navH = nb.getBoundingClientRect().height;
+      fw.style.setProperty('top', navH + 'px', 'important');
+      if (lp) {
+        var fwH = fw.getBoundingClientRect().height;
+        lp.style.setProperty('padding-top', (navH + fwH + 8) + 'px', 'important');
+      }
+    }
+
+    /* wb-navbar-mobile.js'in 'wb:navbarCollapse' event'ini dinle */
+    document.addEventListener('wb:navbarCollapse', updateLayout);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initMobileSearch();
+        updateLayout();
+        setTimeout(updateLayout, 500);
+        setTimeout(updateLayout, 1200);
+      });
+    } else {
+      initMobileSearch();
+      updateLayout();
+      setTimeout(updateLayout, 500);
+      setTimeout(updateLayout, 1200);
+    }
+  })();
+  </script>
+</body>

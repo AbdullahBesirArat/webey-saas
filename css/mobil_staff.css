@@ -1,0 +1,219 @@
+/* ===========================================================
+   STAFF — MOBILE/TABLET (≤1024px)  •  v4
+   - Tek kolon yerleşim
+   - Alt sabit rail (calendar ile aynı davranış/renkler)
+   - Profil rozeti (A) ve dört buton dağılımı
+   - Yapışkan başlıklar, güvenli alanlar, erişilebilirlik
+   =========================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body{
+  width:100% !important;
+  max-width:100% !important;
+  overflow-x:hidden !important;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior-x:none;
+}
+img, svg, canvas, video{ display:block; max-width:100% !important; height:auto !important; }
+
+/* Skip link: mobilde gizli, sadece odakta görünür */
+.skip-link{
+  position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;
+}
+.skip-link:focus,.skip-link:focus-visible{
+  left:12px; top:12px; width:auto; height:auto; z-index:2000;
+  background:#111827; color:#fff; padding:10px 14px; border-radius:10px;
+  box-shadow:0 6px 18px rgba(0,0,0,.25); text-decoration:none; outline:0;
+}
+
+/* ========================================================= */
+/* RAIL (calendar ile aynı renkler)                          */
+/* ========================================================= */
+:root{
+  --rail-bg:#151619; --rail-fg:#b9bec7; --rail-active:#fff; --rail-accent:#7c6cff;
+  --rail-hover:#1d1f24; --rail-divider:#2a2d34;
+}
+
+/* ============================ ≤1024px ============================ */
+@media (max-width:1024px){
+  :root{
+    --rail-width:0px;
+    --rail-height:60px;
+  }
+
+  /* Sol raili sadece is-mobile iken sıfırla */
+  html.is-mobile body{ margin-left:0 !important; }
+  html.is-mobile .topbar .btn--ghost{ display:none !important; }
+
+  /* Alt rail’e çarpmamak için — sadece is-mobile + has-rail iken */
+  html.is-mobile body.has-rail{
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--rail-height) + 16px) !important;
+  }
+  html.is-mobile .container{
+    padding:12px 12px calc(env(safe-area-inset-bottom,0px) + var(--rail-height) + 24px) !important;
+  }
+
+  /* === Alt rail — sadece #rail-mount içindeki kullanılsın === */
+  html.is-mobile body > nav.rail:not(#rail-mount *),
+  html.is-mobile body > .rail:not(#rail-mount *){
+    display:none !important;
+  }
+
+  /* Hem gerçek <nav.rail> hem fallback <div.rail> */
+  html.is-mobile #rail-mount nav.rail,
+  html.is-mobile #rail-mount .rail{
+    position:fixed !important;
+    inset:auto 0 0 0 !important;
+    height:var(--rail-height) !important;
+    width:100% !important;
+    background:var(--rail-bg) !important;
+    border-top:1px solid var(--rail-divider) !important;
+    border-right:0 !important;
+    z-index:10000 !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-around !important;
+    padding:0 6px !important;
+    backdrop-filter:saturate(1.2) blur(4px);
+  }
+
+  html.is-mobile #rail-mount .rail__list{
+    width:100% !important; height:100% !important;
+    display:flex !important; flex-direction:row !important;
+    align-items:center !important; justify-content:space-evenly !important;
+    gap:6px !important; padding:0 !important; margin:0 !important;
+  }
+  html.is-mobile #rail-mount .rail__item{
+    list-style:none !important; height:100% !important;
+    display:flex !important; flex:1 1 0 !important; min-width:0 !important;
+    justify-content:center !important;
+  }
+  html.is-mobile #rail-mount .rail__btn{
+    display:grid !important; place-items:center !important;
+    height:40px !important; width:40px !important;
+    gap:0 !important; padding:0 !important;
+    border-radius:12px !important; text-decoration:none !important;
+    color:var(--rail-fg) !important; min-width:40px !important;
+    position:relative !important;
+  }
+  html.is-mobile #rail-mount .rail__btn:hover{
+    background:var(--rail-hover) !important; color:var(--rail-active) !important;
+  }
+  html.is-mobile #rail-mount .rail__btn[aria-current="page"]{
+    color:var(--rail-active) !important;
+    background:rgba(124,108,255,.12) !important;
+    box-shadow:inset 0 0 0 1px rgba(124,108,255,.35) !important;
+  }
+  /* Masaüstü “aktif şerit” mobilde görünmesin */
+  html.is-mobile #rail-mount .rail__btn[aria-current="page"]::before{ display:none !important; }
+
+  /* SVG ikon boyutu */
+  html.is-mobile #rail-mount .ico{
+    width:20px; height:20px;
+    stroke:currentColor !important; fill:none; stroke-width:1.9;
+  }
+
+  /* Profil rozeti (A) — calendar ile aynı tarz */
+  html.is-mobile #rail-mount .avatar-btn .avatar-circle{
+    width:28px; height:28px; border-radius:999px;
+    display:grid; place-items:center;
+    font:600 12px/1 Inter,system-ui;
+    color:#fff; background:#7c6cff;
+    box-shadow:0 2px 8px rgba(124,108,255,.35), inset 0 0 0 1px rgba(255,255,255,.25);
+  }
+
+  /* Alt kısım (rail__bottom) mobilde gizli */
+  html.is-mobile #rail-mount .rail__bottom{ display:none !important; }
+
+  /* ====== Tek kolon yerleşim ve yapışkan başlıklar ====== */
+  .page{
+    display:block !important;
+    grid-template-columns:none !important;
+    gap:12px !important;
+    margin-top:0 !important;
+  }
+  .staff-card{ height:auto !important; }
+  .panel{ margin-top:12px !important; }
+  .staff-card .staff-list{ margin:0 !important; padding-top:8px !important; }
+
+  .staff-card header{
+    position:sticky; top:0; z-index:1200;
+    background:var(--card); border-bottom:1px solid var(--line);
+  }
+  .panel > header{
+    position:sticky; top:0; z-index:1190; background:var(--card);
+  }
+  .tabs{
+    position:sticky; top:48px; z-index:1180;
+    background:var(--card);
+    padding:8px 12px; margin:0 -12px 12px;
+    border-bottom:1px solid var(--line);
+    display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  }
+  .tab{ white-space:nowrap; padding:8px 10px; border-radius:10px; }
+  .tab[aria-selected="true"]{ background:#eef2ff; border:1px solid #c7d2fe; }
+
+  /* Saat satırları kompakt */
+  .row{
+    grid-template-columns:110px 1fr 84px !important;
+    gap:10px !important;
+    padding:8px 10px !important;
+  }
+  .sel{ height:36px !important; }
+
+  /* Hizmet atama */
+  .svc-bar{ gap:10px !important; flex-wrap:wrap !important; }
+  #srvSearch{ width:min(320px,100%) !important; }
+  .svc-wrap{ margin-top:10px !important; }
+  .svc-item{ padding:10px 12px !important; }
+
+  /* Bildirim paneli — bottom nav üzerinde görünsün */
+  .wb-notify-panel { z-index: 9300 !important; }
+  .wb-notify-overlay { z-index: 9299 !important; }
+
+  /* Modallar — bottom nav üzerinde görünsün */
+  .modal-backdrop {
+    z-index: 9500 !important;
+    align-items: flex-start !important;
+    padding-top: 16px !important;
+  }
+  .modal{
+    width:100% !important; max-width:calc(100vw - 24px) !important;
+    height:auto; max-height:calc(100vh - calc(env(safe-area-inset-bottom,0px) + 80px));
+    border-radius:16px; margin:0 12px;
+  }
+  .modal .content{ max-height:calc(100vh - calc(env(safe-area-inset-bottom,0px) + 200px)) !important; }
+  /* Modal footer bottom nav'a çarpmıyor */
+  .modal footer{ padding-bottom: calc(env(safe-area-inset-bottom,0px) + 12px) !important; }
+
+  /* "Yeni Personel" modalı tek kolon */
+  .modal-lg{ width:100% !important; max-width:100% !important; }
+  .addstaff-wrap{ grid-template-columns:1fr !important; }
+  .addstaff-left{
+    border-right:none !important;
+    border-bottom:1px solid var(--line) !important;
+  }
+
+  /* Profil/Business modalı */
+  .bm-box{ width:min(95vw,560px) !important; }
+
+  /* Dokunma hedefleri */
+  .btn{ min-height:44px !important; }
+  .btn-icon{ width:44px !important; height:44px !important; }
+
+  /* Yatay taşmayı kes */
+  .panel, .staff-card, .modal .content{ overflow-x:clip !important; }
+}
+
+/* ============================ ≤640px ============================ */
+@media (max-width:640px){
+  .row{ grid-template-columns:96px 1fr 72px !important; }
+  .tabs{ top:46px; }
+}
+
+/* ============================ ≤480px ============================ */
+@media (max-width:480px){
+  .panel > header{ padding:12px !important; }
+  .panel .panel-body{ padding:12px !important; }
+  .svc-item{ padding:8px 10px !important; }
+}  

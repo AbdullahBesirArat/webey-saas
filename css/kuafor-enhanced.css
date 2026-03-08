@@ -1,0 +1,338 @@
+/* css/kuafor-enhanced.css
+   Sort chipleri, açık toggle, harita butonu, load more
+   ──────────────────────────────────────────────────── */
+
+/* ── Sort Bar ── */
+#sortBar {
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+  padding: 0;
+  position: sticky;
+  top: 64px;
+  z-index: 90;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.sort-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 52px;
+  flex-wrap: nowrap;
+}
+
+.sort-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.sort-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sort-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 0;
+}
+.sort-chips::-webkit-scrollbar { display: none; }
+
+.sort-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.open-now-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.open-now-text {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.open-dot {
+  width: 7px;
+  height: 7px;
+  background: #d1d5db;
+  border-radius: 50%;
+  transition: background .2s;
+}
+
+.wb-toggle[aria-checked="true"] ~ .open-now-text .open-dot {
+  background: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34,197,94,.25);
+}
+
+.sort-divider {
+  width: 1px;
+  height: 20px;
+  background: #e5e7eb;
+  flex-shrink: 0;
+}
+
+/* ── Sort Chips ── */
+.wb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border: 1.5px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 99px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.wb-chip:hover {
+  border-color: #0ea5b3;
+  color: #0ea5b3;
+  background: #f0fdff;
+}
+.wb-chip--active {
+  background: #0ea5b3;
+  border-color: #0ea5b3;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(14,165,179,.30);
+}
+.wb-chip--active:hover {
+  background: #0b8a96;
+  border-color: #0b8a96;
+  color: #fff;
+}
+
+/* ── Şu an açık Toggle ── */
+.wb-toggle {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  background: #e5e7eb;
+  border-radius: 99px;
+  transition: background .2s;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.wb-toggle[aria-checked="true"] {
+  background: #0ea5b3;
+}
+.wb-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform .2s;
+}
+.wb-toggle[aria-checked="true"] .wb-toggle-knob {
+  transform: translateX(16px);
+}
+
+/* ── Harita Butonu ── */
+.wb-map-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid #e5e7eb;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.wb-map-btn:hover,
+.wb-map-btn.active {
+  border-color: #0ea5b3;
+  color: #0ea5b3;
+  background: #f0fdff;
+  box-shadow: 0 2px 8px rgba(14,165,179,.15);
+}
+
+/* ── Load More ── */
+.wb-load-more-btn {
+  padding: 12px 36px;
+  border: 2px solid #0ea5b3;
+  background: #fff;
+  color: #0ea5b3;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+.wb-load-more-btn:hover {
+  background: #0ea5b3;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(14,165,179,.25);
+}
+.wb-load-more-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Harita panel ── */
+#mapPanel {
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ── Harita: Google Maps işareti ── */
+.wb-gmap-pin {
+  background: #0ea5b3;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,.22);
+  border: 2px solid #fff;
+  cursor: pointer;
+  transition: transform .15s;
+}
+.wb-gmap-pin:hover { transform: scale(1.08); }
+.wb-gmap-pin.has-url {
+  background: #7c3aed;
+}
+
+/* Leaflet popup özelleştirme */
+.wb-map-popup .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.14);
+  padding: 0;
+  overflow: hidden;
+}
+.wb-map-popup .leaflet-popup-content { margin: 0; }
+.wb-popup-inner { padding: 14px 16px; min-width: 160px; }
+.wb-popup-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 3px;
+}
+.wb-popup-loc {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+.wb-popup-rating {
+  font-size: 12px;
+  color: #f59e0b;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.wb-popup-price {
+  font-size: 12px;
+  color: #0ea5b3;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.wb-popup-gmap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #7c3aed;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.wb-popup-btn {
+  display: block;
+  text-align: center;
+  padding: 8px;
+  background: #0ea5b3;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s;
+}
+.wb-popup-btn:hover { background: #0b8a96; }
+.wb-popup-gmaps-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-align: center;
+  padding: 6px;
+  margin-top: 6px;
+  background: #f5f3ff;
+  color: #7c3aed;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s;
+}
+.wb-popup-gmaps-link:hover { background: #ede9fe; }
+
+/* ── Harita no-location uyarısı ── */
+.wb-map-empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px 28px;
+  text-align: center;
+  box-shadow: 0 8px 28px rgba(0,0,0,.12);
+  pointer-events: none;
+}
+.wb-map-empty-icon { font-size: 32px; margin-bottom: 8px; }
+.wb-map-empty-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 4px; }
+.wb-map-empty-sub { font-size: 12px; color: #9ca3af; }
+
+/* ── Mobil ── */
+@media (max-width: 640px) {
+  .sort-bar-inner {
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 0;
+    gap: 8px;
+  }
+  .sort-left { width: 100%; }
+  .sort-right { width: 100%; justify-content: space-between; }
+  .sort-label { display: none; }
+  #mapPanel { height: 340px; }
+  .sort-divider { display: none; }
+}

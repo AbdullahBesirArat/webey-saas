@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#ffffff"/>
+  <title>İstatistikler • Analitik</title>
+
+  <script>
+    (function () {
+      var mq = window.matchMedia('(max-width: 1024px)');
+      function apply(){ document.documentElement.classList.toggle('is-mobile', mq.matches); }
+      apply();
+      (mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply));
+    })();
+  </script>
+
+  <link rel="stylesheet" href="css/settings.css" />
+  <link rel="stylesheet" href="css/rail.css?v=4" />
+  <link rel="stylesheet" href="css/admin-profile.css?v=5" />
+  <link rel="stylesheet" href="css/mobile-admin.css" />
+  <link rel="stylesheet" href="css/admin-wb.css" />
+  <link rel="stylesheet" href="css/wb-transitions.css" />
+  <link rel="stylesheet" href="css/wb-bottom-nav.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" />
+
+  <style>
+    .stats-page { padding: 28px 24px 60px; max-width: 1000px; margin: 0 auto; }
+    .stats-page-header { margin-bottom: 20px; }
+    .stats-page-header h1 { font-size: 22px; font-weight: 800; color: #111827; margin: 0 0 4px; }
+    .stats-page-header p  { color: #6b7280; font-size: 13px; margin: 0; }
+
+    /* Dönem toolbar */
+    .an-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .an-title { font-size: 17px; font-weight: 700; color: #111827; margin: 0; }
+
+    @media (max-width: 768px) {
+      .stats-page { padding: 16px 14px 90px; }
+    }
+  </style>
+</head>
+<body data-page="istatistikler">
+
+  <div id="rail-mount" aria-hidden="true"></div>
+
+  <main class="stats-page">
+    <div class="stats-page-header">
+      <h1>📊 İstatistikler</h1>
+      <p>İşletmenizin performans verileri ve analitik raporu.</p>
+    </div>
+
+    <!-- Dönem seçici -->
+    <div class="an-toolbar">
+      <h2 class="an-title">İşletme Analitiği</h2>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="an-period-wrap" role="group" aria-label="Dönem seç">
+          <button class="an-period" data-period="7"  type="button">7 Gün</button>
+          <button class="an-period is-active" data-period="30" type="button">30 Gün</button>
+          <button class="an-period" data-period="90" type="button">90 Gün</button>
+        </div>
+        <button id="csvExportBtn" type="button" title="CSV olarak indir" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border:1.5px solid #e5e7eb;background:#fff;border-radius:10px;font-size:13px;font-weight:600;color:#374151;cursor:pointer;transition:.2s;" onmouseover="this.style.borderColor='#19a0b6';this.style.color='#19a0b6'" onmouseout="this.style.borderColor='#e5e7eb';this.style.color='#374151'">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          CSV İndir
+        </button>
+      </div>
+    </div>
+
+    <!-- KPI Kartları -->
+    <div class="an-kpi-grid" id="anKpiGrid">
+      <div class="an-kpi-card an-kpi--blue wb-reveal" data-delay="1">
+        <div class="an-kpi-label">Toplam Randevu</div>
+        <div class="an-kpi-val" id="anKpiAppt">—</div>
+        <div class="an-kpi-badge" id="anKpiApptChange"></div>
+      </div>
+      <div class="an-kpi-card an-kpi--green wb-reveal" data-delay="2">
+        <div class="an-kpi-label">Tahmini Gelir</div>
+        <div class="an-kpi-val" id="anKpiRevenue">—</div>
+        <div class="an-kpi-badge" id="anKpiRevChange"></div>
+      </div>
+      <div class="an-kpi-card an-kpi--purple wb-reveal" data-delay="3">
+        <div class="an-kpi-label">Benzersiz Müşteri</div>
+        <div class="an-kpi-val" id="anKpiCustomers">—</div>
+        <div class="an-kpi-badge" id="anKpiCustChange"></div>
+      </div>
+      <div class="an-kpi-card an-kpi--orange wb-reveal" data-delay="4">
+        <div class="an-kpi-label">Doluluk Oranı</div>
+        <div class="an-kpi-val" id="anKpiOccupancy">—</div>
+        <div class="an-kpi-sub" id="anKpiOccSub"></div>
+      </div>
+      <div class="an-kpi-card an-kpi--teal wb-reveal" data-delay="5">
+        <div class="an-kpi-label">Yaklaşan (7 gün)</div>
+        <div class="an-kpi-val" id="anKpiUpcoming">—</div>
+        <div class="an-kpi-sub" id="anKpiPending"></div>
+      </div>
+      <div class="an-kpi-card an-kpi--yellow wb-reveal" data-delay="6">
+        <div class="an-kpi-label">Ortalama Puan</div>
+        <div class="an-kpi-val" id="anKpiRating">—</div>
+        <div class="an-kpi-sub" id="anKpiRatingSub"></div>
+      </div>
+    </div>
+
+    <!-- Trend + Top Hizmetler -->
+    <div class="an-row-2">
+      <div class="card an-chart-card wb-reveal" data-delay="2">
+        <div class="an-chart-header">
+          <h3>Randevu Trendi</h3>
+          <div class="an-legend">
+            <span class="an-legend-dot an-legend-dot--blue"></span> Aktif randevu
+          </div>
+        </div>
+        <div class="an-chart-wrap" id="anTrendWrap">
+          <canvas id="anTrendCanvas" height="180"></canvas>
+        </div>
+      </div>
+
+      <div class="card an-list-card wb-reveal" data-delay="3">
+        <h3>Popüler Hizmetler</h3>
+        <div id="anServicesList" class="an-list"></div>
+      </div>
+    </div>
+
+    <!-- Personel + En Aktif Müşteriler -->
+    <div class="an-row-2">
+      <div class="card an-list-card wb-reveal" data-delay="3">
+        <h3>Personel Performansı</h3>
+        <div id="anStaffList" class="an-list"></div>
+      </div>
+
+      <div class="card an-list-card wb-reveal" data-delay="4">
+        <h3>En Aktif Müşteriler</h3>
+        <div id="anCustomersList" class="an-list"></div>
+      </div>
+    </div>
+
+    <!-- Yorum Dağılımı + Saatlik Yoğunluk -->
+    <div class="an-row-2">
+      <div class="card an-chart-card wb-reveal" data-delay="2">
+        <div class="an-chart-header">
+          <h3>⭐ Yorum Dağılımı</h3>
+        </div>
+        <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+          <div style="position:relative;width:140px;height:140px;flex-shrink:0;">
+            <canvas id="anReviewDonut"></canvas>
+            <div id="anDonutCenter" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+              <span style="font-size:22px;font-weight:800;color:#111827;" id="anDonutAvg">—</span>
+              <span style="font-size:11px;color:#9ca3af;">ortalama</span>
+            </div>
+          </div>
+          <div id="anReviewBars" style="flex:1;min-width:160px;display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+
+      <div class="card an-chart-card wb-reveal" data-delay="3">
+        <div class="an-chart-header">
+          <h3>🔥 Saatlik Yoğunluk</h3>
+          <span style="font-size:12px;color:#9ca3af;">En yoğun saat dilimleri</span>
+        </div>
+        <div id="anHeatmap" style="overflow-x:auto;"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Mobil alt nav -->
+  <nav class="wb-bottom-nav" id="adminBottomNav" aria-label="Admin menü" role="navigation">
+    <div class="wb-bn-inner">
+      <a class="wb-bn-item" href="calendar.html" aria-label="Takvim">
+        <span class="wb-bn-icon material-symbols-rounded">calendar_month</span>
+        <span class="wb-bn-label">Takvim</span>
+      </a>
+      <a class="wb-bn-item" href="staff.html" aria-label="Personel">
+        <span class="wb-bn-icon material-symbols-rounded">group</span>
+        <span class="wb-bn-label">Personel</span>
+      </a>
+      <a class="wb-bn-item" href="musterilerim.html" aria-label="Müşterilerim">
+        <span class="wb-bn-icon material-symbols-rounded">people</span>
+        <span class="wb-bn-label">Müşteri</span>
+      </a>
+      <a class="wb-bn-item is-active" href="istatistikler.html" aria-label="İstatistikler" aria-current="page">
+        <span class="wb-bn-icon material-symbols-rounded">bar_chart</span>
+        <span class="wb-bn-label">İstatistik</span>
+      </a>
+      <a class="wb-bn-item" href="bildirimler.html" aria-label="Bildirimler">
+        <span class="wb-bn-icon material-symbols-rounded">notifications</span>
+        <span class="wb-bn-label">Bildirim</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Rail yükleyici -->
+  <script>
+  (function loadRail(){
+    const mount = document.getElementById('rail-mount');
+    if(!mount) return;
+    const CANDIDATES = ['bar-menu.html', '/bar-menu.html', '../bar-menu.html'];
+    async function tryFetch(url){
+      try{
+        const r = await fetch(url,{credentials:'same-origin'}); if(!r.ok) throw new Error();
+        const html = await r.text(); mount.innerHTML = html; mount.removeAttribute('aria-hidden');
+        return true;
+      }catch{ return false; }
+    }
+    (async()=>{ let ok=false; for(const u of CANDIDATES){ ok=await tryFetch(u); if(ok) break; } })();
+  })();
+  </script>
+
+  <!-- Global Bildirimler -->
+  <script src="js/wb-notifications.js"></script>
+
+  <!-- Chart.js + Analitik JS -->
+  <script>
+    let _anPeriod  = 30;
+    let _anLoading = false;
+    let _anChart   = null;
+
+    const TL_FMT = v => v >= 1000
+      ? '₺' + (v/1000).toFixed(1).replace('.',',') + 'B'
+      : '₺' + Math.round(v).toLocaleString('tr-TR');
+
+    function anChangeBadge(pct) {
+      if (pct === 0) return '';
+      const dir = pct > 0 ? 'up' : 'down';
+      const sym = pct > 0 ? '▲' : '▼';
+      return `<span class="an-change an-change--${dir}">${sym} ${Math.abs(pct)}%</span>`;
+    }
+
+    function anStars(avg) {
+      let h = '';
+      for (let i=1; i<=5; i++) {
+        if (avg >= i)          h += '<i class="fas fa-star an-star"></i>';
+        else if (avg >= i-0.5) h += '<i class="fas fa-star-half-stroke an-star"></i>';
+        else                   h += '<i class="far fa-star an-star an-star--empty"></i>';
+      }
+      return h;
+    }
+
+    function paintKpi(d) {
+      const k = d.kpi;
+      document.getElementById('anKpiAppt').textContent     = k.appointments.toLocaleString('tr-TR');
+      document.getElementById('anKpiApptChange').innerHTML = anChangeBadge(k.appt_change);
+      document.getElementById('anKpiRevenue').textContent  = TL_FMT(k.revenue);
+      document.getElementById('anKpiRevChange').innerHTML  = anChangeBadge(k.rev_change);
+      document.getElementById('anKpiCustomers').textContent= k.customers.toLocaleString('tr-TR');
+      document.getElementById('anKpiCustChange').innerHTML = '';
+      document.getElementById('anKpiOccupancy').textContent= k.occupancy_rate + '%';
+      document.getElementById('anKpiOccSub').textContent   = 'Bu hafta doluluk';
+      document.getElementById('anKpiUpcoming').textContent = k.upcoming_7d.toLocaleString('tr-TR');
+      const pendingEl = document.getElementById('anKpiPending');
+      if (pendingEl) pendingEl.textContent = k.pending > 0 ? `${k.pending} onay bekliyor` : '';
+      const ratingEl    = document.getElementById('anKpiRating');
+      const ratingSubEl = document.getElementById('anKpiRatingSub');
+      if (d.reviews.total > 0) {
+        ratingEl.innerHTML    = `${d.reviews.avg.toFixed(1)} ${anStars(d.reviews.avg)}`;
+        ratingSubEl.textContent = `${d.reviews.total} yorum`;
+      } else {
+        ratingEl.textContent    = '—';
+        ratingSubEl.textContent = 'Henüz yorum yok';
+      }
+    }
+
+    function paintTrend(trend) {
+      const canvas = document.getElementById('anTrendCanvas');
+      if (!canvas || typeof Chart === 'undefined') return;
+      const labels = trend.map(t => new Date(t.day).toLocaleDateString('tr-TR',{day:'2-digit',month:'short'}));
+      const data   = trend.map(t => t.count);
+      if (_anChart) {
+        _anChart.data.labels = labels;
+        _anChart.data.datasets[0].data = data;
+        _anChart.update('none'); return;
+      }
+      _anChart = new Chart(canvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{ label:'Randevu', data, backgroundColor:'rgba(25,160,182,.75)', borderRadius:5, borderSkipped:false }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          animation: { duration: 400 },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor:'#1e293b', titleColor:'#f1f5f9', bodyColor:'#94a3b8', padding:10,
+              callbacks: { title: items=>items[0].label, label: item=>` ${item.raw} randevu` }
+            }
+          },
+          scales: {
+            x: { grid:{display:false}, ticks:{color:'#94a3b8',font:{size:11},maxRotation:0,
+              callback(_,i){ return i%Math.ceil(labels.length/8)===0?labels[i]:''; }} },
+            y: { beginAtZero:true, grid:{color:'rgba(0,0,0,.06)'}, ticks:{color:'#94a3b8',font:{size:11},stepSize:1,precision:0} }
+          }
+        }
+      });
+    }
+
+    function paintServices(services) {
+      const el = document.getElementById('anServicesList');
+      if (!el) return;
+      if (!services.length) { el.innerHTML='<p class="an-empty">Veri yok</p>'; return; }
+      const max = services[0].count || 1;
+      el.innerHTML = services.map((s,i) => `
+        <div class="an-list-row">
+          <div class="an-list-rank">${i+1}</div>
+          <div class="an-list-info">
+            <div class="an-list-name">${s.name}</div>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width:${Math.round(s.count/max*100)}%"></div></div>
+          </div>
+          <div class="an-list-right">
+            <div class="an-list-count">${s.count}x</div>
+            ${s.revenue>0?`<div class="an-list-rev">${TL_FMT(s.revenue)}</div>`:''}
+          </div>
+        </div>`).join('');
+    }
+
+    function paintStaff(staff) {
+      const el = document.getElementById('anStaffList');
+      if (!el) return;
+      if (!staff.length) { el.innerHTML='<p class="an-empty">Personel verisi yok</p>'; return; }
+      const max = staff[0].active || 1;
+      el.innerHTML = staff.map(s => `
+        <div class="an-list-row">
+          <div class="an-staff-avatar">${s.name[0]?.toUpperCase()||'?'}</div>
+          <div class="an-list-info">
+            <div class="an-list-name">${s.name}</div>
+            <div class="an-bar-track"><div class="an-bar-fill an-bar-fill--purple" style="width:${Math.round(s.active/max*100)}%"></div></div>
+          </div>
+          <div class="an-list-right">
+            <div class="an-list-count">${s.active} randevu</div>
+            ${s.revenue>0?`<div class="an-list-rev">${TL_FMT(s.revenue)}</div>`:''}
+          </div>
+        </div>`).join('');
+    }
+
+    function paintCustomers(customers) {
+      const el = document.getElementById('anCustomersList');
+      if (!el) return;
+      if (!customers.length) { el.innerHTML='<p class="an-empty">Veri yok</p>'; return; }
+      const trMonths = ['','Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+      el.innerHTML = customers.map(c => {
+        const d = new Date(c.last_visit);
+        const date = isNaN(d)?'': `${d.getDate()} ${trMonths[d.getMonth()+1]}`;
+        const ini  = c.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+        return `<div class="an-list-row">
+          <div class="an-staff-avatar an-staff-avatar--green">${ini}</div>
+          <div class="an-list-info">
+            <div class="an-list-name">${c.name}</div>
+            <div class="an-list-sub">${date?'Son: '+date:''}</div>
+          </div>
+          <div class="an-list-right">
+            <div class="an-list-count an-list-count--badge">${c.visits}x</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    /* ── Yorum Donut Chart ── */
+    let _donutChart = null;
+    function paintReviews(reviews) {
+      const canvas = document.getElementById('anReviewDonut');
+      const avgEl  = document.getElementById('anDonutAvg');
+      const barsEl = document.getElementById('anReviewBars');
+      if (!canvas || !reviews.total) {
+        if (barsEl) barsEl.innerHTML = '<p class="an-empty">Henüz yorum yok</p>';
+        return;
+      }
+      if (avgEl) avgEl.textContent = reviews.avg.toFixed(1);
+
+      const counts  = [reviews.r5, reviews.r4, reviews.r3, reviews.r2, reviews.r1];
+      const colors  = ['#22c55e','#84cc16','#facc15','#fb923c','#ef4444'];
+      const labels  = ['5 ⭐','4 ⭐','3 ⭐','2 ⭐','1 ⭐'];
+
+      if (_donutChart) { _donutChart.destroy(); }
+      _donutChart = new Chart(canvas.getContext('2d'), {
+        type: 'doughnut',
+        data: { labels, datasets: [{ data: counts, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 4 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          cutout: '72%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: { label: item => ` ${item.raw} yorum (${Math.round(item.raw/reviews.total*100)}%)` }
+            }
+          }
+        }
+      });
+
+      if (barsEl) {
+        barsEl.innerHTML = counts.map((c,i) => `
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;color:#374151;width:30px;text-align:right;font-weight:600;">${labels[i]}</span>
+            <div style="flex:1;height:8px;background:#f3f4f6;border-radius:99px;overflow:hidden;">
+              <div style="height:100%;width:${reviews.total?Math.round(c/reviews.total*100):0}%;background:${colors[i]};border-radius:99px;transition:width .4s ease;"></div>
+            </div>
+            <span style="font-size:12px;color:#9ca3af;width:20px;">${c}</span>
+          </div>`).join('');
+      }
+    }
+
+    /* ── Saatlik Heatmap ── */
+    const DOW_TR   = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
+    const HEAT_COL = ['#f0f9ff','#bae6fd','#38bdf8','#0284c7','#075985']; // 0→boş, 1→az, …→çok
+
+    function paintHeatmap(heatmap) {
+      const el = document.getElementById('anHeatmap');
+      if (!el || !heatmap) return;
+
+      // Maksimum değeri bul
+      let maxVal = 1;
+      for (let d = 0; d < 7; d++) for (let h = 0; h < 24; h++) maxVal = Math.max(maxVal, heatmap[d]?.[h] || 0);
+
+      const WORK_HOURS = [8,9,10,11,12,13,14,15,16,17,18,19,20,21]; // 08:00 – 21:00
+
+      let html = `<table style="border-collapse:collapse;font-size:11px;width:100%;">
+        <thead><tr><th style="width:32px;"></th>${WORK_HOURS.map(h=>`<th style="color:#9ca3af;font-weight:500;text-align:center;padding:2px;">${h}</th>`).join('')}</tr></thead>
+        <tbody>`;
+
+      for (let d = 0; d < 7; d++) {
+        html += `<tr><td style="color:#6b7280;font-weight:600;padding:3px 4px 3px 0;white-space:nowrap;">${DOW_TR[d]}</td>`;
+        for (const h of WORK_HOURS) {
+          const cnt = heatmap[d]?.[h] || 0;
+          const ratio = cnt / maxVal;
+          const ci  = cnt === 0 ? 0 : Math.min(4, Math.ceil(ratio * 4));
+          const bg  = HEAT_COL[ci];
+          const txt = cnt > 0 ? cnt : '';
+          html += `<td title="${DOW_TR[d]} ${h}:00 — ${cnt} randevu" style="background:${bg};border-radius:4px;text-align:center;padding:5px 2px;color:${ci>=3?'#fff':'#374151'};font-weight:${ci>=2?700:400};cursor:default;">${txt}</td>`;
+        }
+        html += '</tr>';
+      }
+      html += '</tbody></table>';
+      html += `<div style="display:flex;align-items:center;gap:6px;margin-top:10px;font-size:11px;color:#9ca3af;">
+        <span>Az</span>${HEAT_COL.map(c=>`<div style="width:16px;height:16px;background:${c};border-radius:3px;border:1px solid #e5e7eb;"></div>`).join('')}<span>Çok</span>
+      </div>`;
+
+      el.innerHTML = html;
+    }
+
+    /* ── CSV Export ── */
+    function exportCSV(data) {
+      const rows = [
+        ['Tarih', 'Randevu Sayısı'],
+        ...data.trend.map(t => [t.day, t.count]),
+        [],
+        ['Hizmet', 'Adet', 'Tahmini Gelir (TL)'],
+        ...data.top_services.map(s => [s.name, s.count, s.revenue]),
+        [],
+        ['Personel', 'Toplam', 'Aktif', 'Gelir (TL)'],
+        ...data.staff_perf.map(s => [s.name, s.total, s.active, s.revenue]),
+        [],
+        ['KPI', 'Değer'],
+        ['Toplam Randevu', data.kpi.appointments],
+        ['Tahmini Gelir (TL)', data.kpi.revenue],
+        ['Benzersiz Müşteri', data.kpi.customers],
+        ['Doluluk Oranı (%)', data.kpi.occupancy_rate],
+        ['Ortalama Puan', data.reviews.avg],
+        ['Toplam Yorum', data.reviews.total],
+      ];
+      const csv = rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = `webey-analitik-${_anPeriod}gun-${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+    }
+
+    function showSkeleton(show) {
+      document.getElementById('anKpiGrid')?.classList.toggle('an-loading', show);
+    }
+
+    let _lastData = null; // CSV export için sakla
+
+    async function loadAnalytics(period) {
+      if (_anLoading) return;
+      _anLoading = true;
+      showSkeleton(true);
+      try {
+        const res  = await fetch(`/api/admin/analytics.php?period=${period}`, { credentials: 'include' });
+        if (res.status === 401) { location.href = 'admin-register-login.html'; return; }
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.error||'Hata');
+        const d = json.data;
+        _lastData = d;
+        paintKpi(d);
+        paintTrend(d.trend);
+        paintServices(d.top_services);
+        paintStaff(d.staff_perf);
+        paintCustomers(d.top_customers);
+        paintReviews(d.reviews);
+        paintHeatmap(d.heatmap);
+      } catch(e) { console.error('[analytics]',e); }
+      finally { showSkeleton(false); _anLoading = false; }
+    }
+
+    function loadChartJs(cb) {
+      if (typeof Chart !== 'undefined') { cb(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+      s.onload = cb;
+      document.head.appendChild(s);
+    }
+
+    // CSV butonu
+    document.getElementById('csvExportBtn')?.addEventListener('click', () => {
+      if (_lastData) exportCSV(_lastData);
+      else alert('Önce veri yüklenmeli.');
+    });
+
+    // Dönem butonları
+    document.querySelectorAll('.an-period').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.an-period').forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        _anPeriod = +btn.dataset.period;
+        loadChartJs(() => loadAnalytics(_anPeriod));
+      });
+    });
+
+    // İlk yükle
+    loadChartJs(() => loadAnalytics(_anPeriod));
+  </script>
+
+  <script src="js/wb-transitions.js" defer></script>
+</body>
+</html>

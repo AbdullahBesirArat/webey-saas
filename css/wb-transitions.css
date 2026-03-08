@@ -1,0 +1,151 @@
+/* ════════════════════════════════════════════════════════════
+   wb-transitions.css — Webey Sayfa Geçiş Animasyonları
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Progress Bar (sayfa yüklenirken üst şerit) ── */
+#wb-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, #0ea5b3, #06d6a0);
+  z-index: 99999;
+  border-radius: 0 3px 3px 0;
+  transition: width .3s ease, opacity .4s ease;
+  box-shadow: 0 0 10px rgba(14,165,179,.5);
+  pointer-events: none;
+}
+#wb-progress.wb-done {
+  width: 100% !important;
+  opacity: 0;
+  transition: width .2s ease, opacity .4s ease .1s;
+}
+
+/* ── Sayfa Giriş Animasyonu ── */
+@keyframes wbPageIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wbPageInFast {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Ana içerik yumuşak giriş — sadece explicit class ile */
+.wb-page-in {
+  animation: wbPageIn .38s cubic-bezier(.22,1,.36,1) both;
+}
+
+/* Hero section — sadece explicit class ile */
+.wb-hero-in {
+  animation: wbPageIn .45s cubic-bezier(.22,1,.36,1) .05s both;
+}
+
+/* Kartlar staggered giriş — sadece index.html rec kartları */
+.rec-card-wrap:nth-child(1)  { animation-delay: .04s; }
+.rec-card-wrap:nth-child(2)  { animation-delay: .08s; }
+.rec-card-wrap:nth-child(3)  { animation-delay: .12s; }
+.rec-card-wrap:nth-child(4)  { animation-delay: .16s; }
+.rec-card-wrap:nth-child(5)  { animation-delay: .20s; }
+.rec-card-wrap:nth-child(6)  { animation-delay: .24s; }
+
+.rec-card-wrap {
+  animation: wbPageIn .4s cubic-bezier(.22,1,.36,1) both;
+}
+
+/* ── Sayfa Çıkış (link tıklanınca) ── */
+body.wb-leaving {
+  animation: wbPageOut .22s ease forwards;
+  pointer-events: none;
+}
+@keyframes wbPageOut {
+  from { opacity: 1; }
+  to   { opacity: 0; transform: translateY(-6px); }
+}
+
+/* ── Skeleton Loading — Geliştirilmiş ── */
+@keyframes wbSkeletonShimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+.wb-skel {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e8e8e8 50%,
+    #f0f0f0 75%
+  );
+  background-size: 1200px 100%;
+  animation: wbSkeletonShimmer 1.6s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* Önceden tanımlı skeleton boyutları */
+.wb-skel-line       { height: 14px; margin-bottom: 8px; }
+.wb-skel-line.sm    { height: 11px; width: 60%; }
+.wb-skel-line.lg    { height: 20px; }
+.wb-skel-circle     { width: 40px; height: 40px; border-radius: 50%; }
+.wb-skel-rect       { height: 180px; }
+.wb-skel-btn        { height: 40px; width: 120px; border-radius: 10px; }
+
+/* ── Scroll animasyonu (IntersectionObserver ile) ── */
+.wb-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.22,1,.36,1);
+}
+.wb-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Gecikme varyantları */
+.wb-reveal[data-delay="1"] { transition-delay: .1s; }
+.wb-reveal[data-delay="2"] { transition-delay: .2s; }
+.wb-reveal[data-delay="3"] { transition-delay: .3s; }
+.wb-reveal[data-delay="4"] { transition-delay: .4s; }
+
+/* ── Hover micro-interactions ── */
+.wb-lift {
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+}
+.wb-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,.12);
+}
+
+/* ── Link press animasyonu ── */
+a.wb-press,
+button.wb-press {
+  transition: transform .1s ease;
+}
+a.wb-press:active,
+button.wb-press:active {
+  transform: scale(.96);
+}
+
+/* ── Yumuşak scroll ── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Medya tercihi: motion azalt ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
