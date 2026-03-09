@@ -1,361 +1,712 @@
-# Webey — Geliştirici Dokümantasyonu
+# Webey — Barbershop Appointment Platform
 
-> Son güncelleme: Mart 2026  
-> PHP 8.2 · MariaDB 10.4 · Session tabanlı auth (cookie)
+> **Turkey's online barbershop booking system.** Customers discover nearby businesses and book appointments in seconds; business owners manage their calendar, staff, and subscription from a single dashboard.
 
----
-
-## İçindekiler
-
-1. [Proje Yapısı](#proje-yapısı)
-2. [Auth Mimarisi](#auth-mimarisi)
-3. [API Endpoint Listesi](#api-endpoint-listesi)
-4. [Response Formatı](#response-formatı)
-5. [Frontend JS Mimarisi](#frontend-js-mimarisi)
-6. [Service Worker & Cache](#service-worker--cache)
-7. [Veritabanı](#veritabanı)
-8. [Kurulum](#kurulum)
+**Live Site:** [webey.com.tr](https://webey.com.tr)
 
 ---
 
-## Proje Yapısı
+## 📋 Table of Contents
+
+- [About](#-about)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Database Schema](#-database-schema)
+- [API Reference](#-api-reference)
+- [Auth Architecture](#-auth-architecture)
+- [Frontend Architecture](#-frontend-architecture)
+- [PWA & Service Worker](#-pwa--service-worker)
+- [Security](#-security)
+- [Installation](#-installation)
+- [Cron Jobs](#-cron-jobs)
+- [Development Notes](#-development-notes)
+
+---
+
+## 🎯 About
+
+Webey is a two-sided SaaS appointment platform:
+
+- **Customers** search for barbershops by city/district, browse prices and staff profiles, and book instantly with real-time slot availability.
+- **Business owners** complete a guided onboarding flow, then manage staff, working hours, calendar, and subscription — all from one place.
+
+The project is built on a **monolithic PHP backend** and a **vanilla JS frontend**, designed from scratch with no external frameworks. Every layer is hand-written.
+
+---
+
+## ✨ Features
+
+### Customer Side
+- 🔍 Search & filter barbershops by city, district, price range, rating, and "open now"
+- 📅 Real-time slot availability check with instant booking
+- 🔔 Automated email + SMS reminders 24 hours and 1 hour before the appointment
+- 📲 Export appointments to Google / Apple Calendar / Outlook (ICS format)
+- ❤️ Favourite businesses list
+- ⭐ Post-appointment reviews and ratings
+- 🔒 Phone + password registration with a 4-step onboarding flow
+
+### Business Owner / Admin Side
+- 📊 Analytics: total appointments, occupancy rate, customer statistics
+- 🗓️ Weekly/daily calendar view with block-time support
+- 👥 Staff management: photo upload, working hours, service assignment
+- 🛠️ Service catalogue: name, duration (minutes), price
+- 💳 Iyzico-powered subscription management: add/remove cards, invoice history
+- 📩 Cancellation request approval/rejection workflow
+- 🔗 Google OAuth for quick sign-in
+- 📝 Multi-step onboarding (business info → staff → services → publish)
+
+### Platform / Technical
+- 🌐 PWA: installable, offline page, web push notification infrastructure
+- 🔒 CSRF token protection, brute-force protection (IP-based rate limiting)
+- 🗃️ IP-based API rate limiting on sensitive endpoints
+- 🔄 Session fixation protection, HttpOnly + SameSite cookies
+- 🤖 Cron-based email queue, SMS queue, subscription reminders, token cleanup
+- 🗺️ Business geolocation (latitude/longitude), ready for map integration
+- 📦 Schema.org JSON-LD SEO markup, Open Graph, Twitter Card
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Backend** | PHP 8.2, PDO (MariaDB driver) |
+| **Database** | MariaDB 10.4 / MySQL 8+ |
+| **Auth** | PHP Sessions (cookie-based), Google OAuth 2.0 |
+| **Payments** | Iyzico Payment API |
+| **Email** | PHPMailer / SMTP |
+| **SMS** | Configurable provider (`_sms_config.php`) |
+| **Frontend** | Vanilla JS (ES Modules), HTML5, CSS3 |
+| **PWA** | Service Worker, Web Push API, Web App Manifest |
+| **Server** | Apache (`.htaccess` URL rewrite + security rules) |
+| **Deployment** | Shared hosting / VPS compatible; Composer optional |
+
+---
+
+## 🏛 Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     CLIENT (Browser)                    │
+│  HTML/CSS/JS   ←→   api-client.js  ←→   Service Worker │
+└────────────────────────┬────────────────────────────────┘
+                         │ HTTPS (JSON)
+┌────────────────────────▼────────────────────────────────┐
+│                  Apache / PHP 8.2                       │
+│                                                         │
+│  _bootstrap.php  →  Session  →  CSRF  →  Auth guard    │
+│                                                         │
+│  /api/auth/          Admin login, register, OAuth       │
+│  /api/user/          Customer login, register, profile  │
+│  /api/appointments/  Appointment CRUD                   │
+│  /api/calendar/      Admin calendar view                │
+│  /api/billing/       Iyzico subscription & invoices     │
+│  /api/public/        Auth-free search & listings        │
+│  /api/staff/         Staff management                   │
+│  /api/services/      Service management                 │
+│  /api/reviews/       Review system                      │
+│  /api/push/          Web Push subscriptions             │
+└────────────────────────┬────────────────────────────────┘
+                         │ PDO
+┌────────────────────────▼────────────────────────────────┐
+│                   MariaDB 10.4                          │
+│  15+ tables: users, businesses, appointments,           │
+│  staff, services, reviews, subscriptions ...            │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📁 Project Structure
 
 ```
 webey/
-├── api/
-│   ├── _bootstrap.php          # Session + header başlatma
-│   ├── wb_response.php         # Standart response helper (wb_ok, wb_err)
-│   ├── _logout_helper.php      # Paylaşılan logout mantığı
-│   ├── _mailer.php             # Email gönderme
+│
+├── api/                            # All backend endpoints
+│   ├── _bootstrap.php              # Admin session + DB + CSRF guard
+│   ├── _public_bootstrap.php       # Public endpoint bootstrap (no auth)
+│   ├── _init.php                   # Global init (CORS, error settings)
+│   ├── wb_response.php             # wb_ok(), wb_err(), wb_validate(), wb_csrf_*()
+│   ├── _mailer.php                 # PHPMailer wrapper
+│   ├── _sms.php                    # SMS sending wrapper
+│   ├── _iyzico.php                 # Iyzico payment integration
+│   ├── _helpers.php                # Shared utility functions
+│   ├── _slug.php                   # SEO slug generator
+│   ├── _logout_helper.php          # Shared logout logic
+│   ├── _subscription_check.php     # Subscription validity guard
+│   │
 │   ├── session/
-│   │   └── me.php              # ★ Birleşik oturum endpoint'i
-│   ├── auth/                   # Admin / işletme sahibi auth
-│   ├── user/                   # Müşteri auth + profil
-│   ├── appointments/           # Randevu CRUD
-│   ├── calendar/               # Takvim (admin görünümü)
-│   ├── billing/                # Abonelik & ödeme
-│   ├── business/               # İşletme profili
-│   ├── public/                 # Auth gerektirmeyen public endpoint'ler
-│   ├── services/               # Hizmet yönetimi
-│   ├── staff/                  # Personel yönetimi
-│   └── reviews/                # Değerlendirme sistemi
-├── js/
-│   ├── api-client.js           # ★ Merkezi fetch wrapper + session state
-│   ├── auth.js                 # Müşteri kayıt/giriş UI
-│   └── ...
-├── css/
-├── service-worker.js           # PWA cache stratejileri
+│   │   └── me.php                  # ★ Unified session endpoint (admin + user)
+│   │
+│   ├── auth/                       # Admin / business owner auth
+│   │   ├── login.php
+│   │   ├── register.php
+│   │   ├── logout.php
+│   │   ├── google-login.php        # Google OAuth callback
+│   │   ├── forgot-password.php
+│   │   ├── reset-password.php
+│   │   ├── verify-email.php
+│   │   ├── send-otp.php
+│   │   └── verify-otp.php
+│   │
+│   ├── user/                       # Customer auth & profile
+│   │   ├── login.php
+│   │   ├── register.php
+│   │   ├── logout.php
+│   │   ├── me.php                  # → session/me.php shim
+│   │   ├── appointments.php        # Customer's appointments list
+│   │   ├── appointments/
+│   │   │   ├── cancel.php
+│   │   │   └── next.php
+│   │   ├── favorites/
+│   │   │   ├── list.php
+│   │   │   ├── toggle.php
+│   │   │   └── check.php
+│   │   └── profile/
+│   │       └── update.php
+│   │
+│   ├── appointments/               # Appointment CRUD (general)
+│   │   ├── book.php                # Create new appointment
+│   │   ├── booked-map.php          # Booked slot map
+│   │   ├── check-conflict.php      # Conflict detection
+│   │   ├── lock.php / unlock.php   # Optimistic slot locking
+│   │   ├── cancel.php
+│   │   ├── reschedule.php
+│   │   ├── setStatus.php
+│   │   ├── export-ics.php          # Calendar export (ICS)
+│   │   └── counters.php
+│   │
+│   ├── calendar/                   # Admin calendar view
+│   │   ├── bootstrap.php
+│   │   ├── appointments.php
+│   │   ├── block-time.php
+│   │   ├── approve-cancellation.php
+│   │   ├── reject-cancellation.php
+│   │   ├── cancellation-requests.php
+│   │   ├── customer-history.php
+│   │   └── pending-notifications.php
+│   │
+│   ├── billing/                    # Subscription & payments
+│   │   ├── subscribe.php
+│   │   ├── cancel.php
+│   │   ├── cards.php
+│   │   ├── add-card.php
+│   │   ├── remove-card.php
+│   │   ├── invoices.php
+│   │   ├── apply-promo.php
+│   │   ├── cron_expire.php         # Process expired subscriptions
+│   │   ├── cron_reminders.php      # 24h/1h appointment reminders
+│   │   └── cron_sub_reminders.php  # Subscription renewal reminders
+│   │
+│   ├── public/                     # Auth-free public API
+│   │   ├── salons.php              # Business listing (filters + pagination)
+│   │   ├── business.php            # Single business detail
+│   │   ├── businesses.php
+│   │   └── suggest.php             # Autocomplete suggestions
+│   │
+│   ├── staff/                      # Staff management
+│   ├── services/                   # Service management
+│   ├── reviews/                    # Reviews & ratings
+│   ├── settings/                   # Business settings & image upload
+│   ├── notifications/              # Admin notifications
+│   ├── push/                       # Web Push subscriptions
+│   ├── admin/                      # Admin-specific endpoints
+│   └── superadmin/                 # Platform management panel
+│
+├── js/                             # Frontend JavaScript
+│   ├── api-client.js               # ★ Central fetch wrapper + session state
+│   ├── wb-api-shim.js              # Global window.apiGet / window.apiPost
+│   ├── auth.js                     # Customer register/login UI (4 steps)
+│   ├── calendar.js                 # Admin calendar
+│   ├── appointments.js             # Appointments page
+│   ├── settings.js                 # Settings page
+│   ├── staff.js                    # Staff management
+│   ├── kuafor.js                   # Business detail page
+│   ├── index.js                    # Home page
+│   ├── service-worker.js           # PWA Service Worker
+│   ├── wb-bottom-nav.js            # Mobile bottom navigation
+│   ├── wb-notifications.js         # Admin notification system
+│   ├── wb-user-notifications.js    # Customer notification system
+│   ├── wb-transitions.js           # Page transition animations
+│   ├── locations-tr.json           # Turkey city/district dataset
+│   └── components/
+│       ├── autocomplete.js
+│       ├── dob-picker.js
+│       ├── select-combo.js
+│       └── when-modal.js
+│
+├── css/                            # Page and component styles
 ├── database/
-│   ├── schema.sql              # Tam şema
-│   └── webey_migration_001.sql # Index + updated_at + appointment_logs
-└── db.php                      # PDO bağlantısı
+│   ├── schema.sql                  # Full database schema
+│   └── webey_migration_001.sql     # Indexes + appointment_logs migration
+│
+├── core/
+│   ├── init.php
+│   ├── response.php
+│   └── uploadTools.php
+│
+├── service-worker.js               # Root Service Worker (PWA)
+├── manifest.json                   # Web App Manifest
+├── db.php                          # PDO connection
+├── .htaccess                       # Apache rewrite + security rules
+└── sitemap.xml
 ```
 
 ---
 
-## Auth Mimarisi
+## 🗄 Database Schema
 
-İki ayrı kullanıcı tipi vardır, her biri ayrı session key seti kullanır:
+The project uses **15+ tables**. Core relationships:
 
-### Admin / İşletme Sahibi
 ```
-Session keys: user_id, admin_id, email, business_id
-Giriş:  POST /api/auth/login.php       { email, password }
-Kayıt:  POST /api/auth/register.php    { email, password }
-Çıkış:  POST /api/auth/logout.php
+users (1) ──── (1) admin_users
+users (1) ──── (1) customers
+users (1) ──── (*) businesses     [owner_id]
+
+businesses (1) ──── (*) staff
+businesses (1) ──── (*) services
+businesses (1) ──── (*) appointments
+businesses (1) ──── (*) reviews
+businesses (1) ──── (*) subscriptions
+businesses (1) ──── (*) business_hours
+
+staff (1) ──── (*) staff_hours
+staff (1) ──── (*) appointments
+
+appointments (1) ──── (*) appointment_logs
+appointments (1) ──── (*) appointment_reminders
+
+customers (1) ──── (*) favorites
+customers (1) ──── (*) reviews
 ```
 
-### Müşteri (end-user)
-```
-Session keys: user_id, user_role='user', user_phone
-Giriş:  POST /api/user/login.php       { phone, password }
-Kayıt:  POST /api/user/register.php    { phone, password, firstName, ... }
-Çıkış:  POST /api/user/logout.php
-```
+### Key Tables
 
-### Birleşik Oturum Kontrolü
+| Table | Description |
+|-------|-------------|
+| `users` | All users (admin + customer), UNIQUE by email |
+| `admin_users` | 1:1 with `users`, extra data for business owners |
+| `businesses` | Business profiles; slug, geolocation, onboarding state |
+| `customers` | 1:1 with `users`, customer profiles |
+| `appointments` | Appointments; status enum, booking_source, reminder flags |
+| `appointment_logs` | Appointment status history (full audit trail) |
+| `appointment_reminders` | Send channel (email/SMS) and schedule |
+| `services` | Business services; name, duration (minutes), price |
+| `staff` | Staff members; photo, bio |
+| `staff_hours` | Per-staff weekly working hours |
+| `business_hours` | Business-wide working hours |
+| `reviews` | Ratings, comments, approval status |
+| `favorites` | Customer–business favourite relationship |
+| `subscriptions` | Active/cancelled subscription records |
+| `invoices` | Invoice history |
+| `payment_cards` | Saved Iyzico card tokens |
+| `api_rate_limits` | IP-based rate limiting records |
+| `login_attempts` | Brute-force tracking table |
+| `push_subscriptions` | Web Push notification subscriptions |
+
+### Appointment State Machine
+
 ```
-GET /api/session/me.php
-→ { ok: true, data: { role: 'admin', ... } }  — işletme sahibi
-→ { ok: true, data: { role: 'user',  ... } }  — müşteri
-→ { ok: false, code: 'unauthenticated' }       — giriş yok
+pending ──→ approved ──→ completed
+   │            │
+   │            └──→ cancellation_requested ──→ cancelled
+   │                                        └──→ approved (rejected)
+   └──→ rejected
+   └──→ declined
+   └──→ no_show
 ```
-`api/auth/me.php` ve `api/user/me.php` artık bu endpoint'e yönlendiren birer shim'dir.  
-`api-client.js → refreshSession()` tek istekle her iki rolü kontrol eder.
 
 ---
 
-## API Endpoint Listesi
+## 📡 API Reference
 
-Tüm endpoint'ler `/api/` prefix'iyle çağrılır. Response formatı standart `{ ok, data/error }`.
-
-### 🔐 Oturum
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET/POST | `session/me.php` | — | Birleşik oturum kontrolü (admin veya user) |
-| GET | `auth/me.php` | admin | **[shim]** → session/me.php |
-| GET | `user/me.php` | user | **[shim]** → session/me.php |
-
-### 👤 Admin Auth
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| POST | `auth/login.php` | — | Email + şifre ile giriş |
-| POST | `auth/register.php` | — | Yeni admin kaydı, doğrulama emaili gönderir |
-| POST | `auth/logout.php` | — | Çıkış, session temizle |
-| POST | `auth/forgot-password.php` | — | Şifre sıfırlama emaili |
-| POST | `auth/reset-password.php` | — | Token ile yeni şifre belirleme |
-| POST | `auth/verify-email.php` | — | Email token doğrulama |
-| GET | `auth/check-email-status.php` | admin | Email doğrulama durumu |
-| POST | `auth/check-email.php` | — | Email kullanımda mı? |
-| POST | `auth/google-login.php` | — | Google OAuth ile giriş/kayıt |
-| GET | `auth/getUser.php` | admin | Mevcut admin detayı |
-
-### 📱 Müşteri Auth
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| POST | `user/login.php` | — | Telefon + şifre ile giriş |
-| POST | `user/register.php` | — | Yeni müşteri kaydı |
-| POST | `user/logout.php` | — | Çıkış |
-| POST | `user/check-phone.php` | — | Telefon kullanımda mı? |
-| POST | `user/completeSignup.php` | user | Kayıt tamamlama |
-| GET | `user/getProfile.php` | user | Müşteri profili |
-| POST | `user/update-profile.php` | user | Profil güncelle |
-| POST | `user/profile/update.php` | user | Profil güncelle (alan bazlı: name/phone/email/address/password) |
-
-### 📅 Randevular (Müşteri)
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET | `user/appointments.php` | user | Müşterinin randevuları |
-| POST | `user/appointments/cancel.php` | user | Randevu iptali |
-| GET | `user/appointments/next.php` | user | Bir sonraki randevu |
-
-### ❤️ Favoriler
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET | `user/favorites/list.php` | user | Favori işletmeler |
-| GET | `user/favorites/check.php` | user | İşletme favori mi? `?ids=1,2,3` |
-| POST | `user/favorites/toggle.php` | user | Favori ekle/kaldır |
-
-### 📆 Takvim (Admin)
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET | `calendar/appointments.php` | admin | Takvim randevuları |
-| GET | `calendar/bootstrap.php` | admin | Takvim başlangıç verisi |
-| POST | `calendar/block-time.php` | admin | Blok zaman ekle |
-| POST | `calendar/approve-cancellation.php` | admin | İptal isteğini onayla |
-| POST | `calendar/reject-cancellation.php` | admin | İptal isteğini reddet |
-| GET | `calendar/cancellation-requests.php` | admin | Bekleyen iptal istekleri |
-| GET | `calendar/pending-notifications.php` | admin | Bildirimler |
-| GET | `calendar/customer-history.php` | admin | Müşteri geçmişi |
-
-### 🗓️ Randevu İşlemleri (Genel)
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| POST | `appointments/book.php` | — | Yeni randevu oluştur |
-| GET | `appointments/booked-map.php` | — | Dolu zaman slotları |
-| POST | `appointments/check-conflict.php` | — | Çakışma kontrolü |
-| GET | `appointments/status.php` | — | Randevu durumu |
-| GET | `appointments/cancellation-status.php` | — | İptal durumu |
-| POST | `appointments/cancel.php` | — | İptal isteği gönder |
-| POST | `appointments/reschedule.php` | — | Yeniden zamanla |
-| POST/PUT | `appointments/setStatus.php` | admin | Durum güncelle |
-| GET | `appointments/counters.php` | admin | Randevu sayıları |
-
-### 🏢 İşletme & Admin
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET/POST | `business/profile.php` | admin | İşletme profili |
-| POST | `admin/completeOnboarding.php` | admin | Onboarding tamamla |
-| POST | `admin/updateAbout.php` | admin | Hakkında güncelle |
-| GET/POST | `admin/status.php` | admin | İşletme durumu |
-| GET | `settings/load.php` | admin | Ayarları yükle |
-| POST | `settings/save.php` | admin | Ayarları kaydet |
-| POST | `settings/upload-image.php` | admin | Fotoğraf yükle |
-| POST | `settings/delete-image.php` | admin | Fotoğraf sil |
-
-### 👥 Personel & Hizmet
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET | `staff/list.php` | admin | Personel listesi |
-| POST | `staff/save.php` | admin | Personel ekle/güncelle |
-| POST | `staff/delete.php` | admin | Personel sil |
-| GET/POST | `staff/hours.php` | admin | Personel çalışma saatleri |
-| POST | `staff/save-services.php` | admin | Personele hizmet ata |
-| POST | `staff/upload-photo.php` | admin | Personel fotoğrafı |
-| POST | `staff/remove-photo.php` | admin | Personel fotoğrafı sil |
-| GET | `services/list.php` | admin | Hizmet listesi |
-| POST | `services/save.php` | admin | Hizmet ekle/güncelle |
-| POST | `services/delete.php` | admin | Hizmet sil |
-
-### 🌐 Public (Auth Yok)
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET | `public/salons.php` | — | Aktif işletme listesi `?city=&district=` |
-| GET | `public/businesses.php` | — | İşletme filtrele/listele |
-| GET | `public/suggest.php` | — | Arama önerileri |
-| GET | `public/business.php` | — | Tek işletme detayı |
-
-### ⭐ Değerlendirmeler
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET | `reviews/list.php` | — | İşletme değerlendirmeleri |
-| GET | `reviews/can-review.php` | user | Değerlendirme yapabilir mi? |
-| POST | `reviews/submit.php` | user | Değerlendirme gönder |
-
-### 💳 Faturalama
-| Method | Endpoint | Auth | Açıklama |
-|--------|----------|------|----------|
-| GET | `billing/cards.php` | admin | Kayıtlı kartlar |
-| POST | `billing/add-card.php` | admin | Kart ekle |
-| POST | `billing/remove-card.php` | admin | Kart sil |
-| POST | `billing/subscribe.php` | admin | Abonelik başlat |
-| POST | `billing/cancel.php` | admin | Abonelik iptal |
-| GET | `billing/invoices.php` | admin | Faturalar |
-
----
-
-## Response Formatı
-
-Tüm endpoint'ler `wb_response.php` üzerinden standart JSON döner:
+All endpoints are prefixed with `/api/`. Every response follows a standard format:
 
 ```json
-// Başarı
+// Success
 { "ok": true, "data": { ... } }
 
-// Hata
-{ "ok": false, "error": "Kullanıcıya gösterilecek mesaj", "code": "snake_case_key" }
+// Error
+{ "ok": false, "error": "Human-readable message", "code": "snake_case_key" }
 ```
 
-HTTP durum kodları: `200` başarı, `400` validasyon, `401` auth, `403` yetki, `404` bulunamadı, `409` çakışma, `422` unprocessable, `500` sunucu hatası.
+**HTTP Status Codes:** `200` success · `400` validation · `401` unauthenticated · `403` forbidden · `404` not found · `409` conflict · `422` unprocessable · `429` rate limited · `500` server error
 
 ---
 
-## Frontend JS Mimarisi
+### 🔐 Session
 
-### `api-client.js` — Tek Fetch Noktası
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET/POST | `session/me.php` | — | Unified session check |
+| GET | `auth/me.php` | admin | **[shim]** → `session/me.php` |
+| GET | `user/me.php` | user | **[shim]** → `session/me.php` |
+
+```json
+// Admin session
+{ "ok": true, "data": { "role": "admin", "user_id": 1, "business_id": 44 } }
+// Customer session
+{ "ok": true, "data": { "role": "user", "user_id": 114 } }
+// No session
+{ "ok": false, "code": "unauthenticated" }
+```
+
+---
+
+### 👤 Admin Auth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `auth/login.php` | Email + password login |
+| POST | `auth/register.php` | New admin registration |
+| POST | `auth/logout.php` | Logout |
+| POST | `auth/google-login.php` | Google OAuth login/register |
+| POST | `auth/forgot-password.php` | Send password reset email |
+| POST | `auth/reset-password.php` | Set new password via token |
+| POST | `auth/verify-email.php` | Email verification |
+
+---
+
+### 📱 Customer Auth
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `user/login.php` | Phone + password login |
+| POST | `user/register.php` | New customer registration |
+| POST | `user/logout.php` | Logout |
+| POST | `user/completeSignup.php` | Complete 4-step onboarding |
+| POST | `user/profile/update.php` | Update name, phone, email, password |
+
+---
+
+### 📅 Appointments
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `appointments/book.php` | — | Create new appointment |
+| GET | `appointments/booked-map.php` | — | Booked time slots |
+| POST | `appointments/check-conflict.php` | — | Check for scheduling conflicts |
+| POST | `appointments/lock.php` | — | Reserve a slot (optimistic lock) |
+| POST | `appointments/unlock.php` | — | Release slot lock |
+| POST | `appointments/cancel.php` | — | Submit cancellation request |
+| POST | `appointments/reschedule.php` | — | Reschedule appointment |
+| GET | `appointments/export-ics.php` | user/token | Download ICS calendar file |
+| POST | `appointments/setStatus.php` | admin | Update appointment status |
+| GET | `appointments/counters.php` | admin | Appointment counts by status |
+
+---
+
+### 🌐 Public API (No Auth Required)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `public/salons.php` | Business listing with filters |
+| GET | `public/business.php` | Single business detail |
+| GET | `public/suggest.php` | Autocomplete search suggestions |
+
+**`public/salons.php` Query Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `city` | string | City filter |
+| `district` | string | District filter |
+| `q` | string | Name/description search |
+| `sort` | string | `newest` · `rating` · `price_asc` · `price_desc` · `name` |
+| `min_rating` | float | Minimum rating |
+| `min_price` / `max_price` | int | Price range (TRY) |
+| `open_now` | bool | Only currently open businesses |
+| `page` / `limit` | int | Pagination (default: 18 per page) |
+
+Response includes a `meta` object: `{ total, page, limit, pages, has_more }`
+
+---
+
+### 📆 Calendar (Admin)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `calendar/bootstrap.php` | Initial data (staff, services) |
+| GET | `calendar/appointments.php` | Appointments for a date range |
+| POST | `calendar/block-time.php` | Add a blocked time period |
+| GET | `calendar/cancellation-requests.php` | Pending cancellation requests |
+| POST | `calendar/approve-cancellation.php` | Approve cancellation |
+| POST | `calendar/reject-cancellation.php` | Reject cancellation |
+| GET | `calendar/customer-history.php` | Customer's appointment history |
+
+---
+
+### 💳 Billing (Admin)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `billing/subscribe.php` | Start subscription (Iyzico) |
+| POST | `billing/cancel.php` | Cancel subscription |
+| GET | `billing/cards.php` | Saved payment cards |
+| POST | `billing/add-card.php` | Add card |
+| POST | `billing/remove-card.php` | Remove card |
+| GET | `billing/invoices.php` | Invoice history |
+| POST | `billing/apply-promo.php` | Apply promo code |
+
+---
+
+## 🔑 Auth Architecture
+
+Two independent user types use separate session key sets:
+
+### Admin / Business Owner
+```
+Session keys: user_id, admin_id, email, business_id
+Login:    POST /api/auth/login.php       { email, password }
+Register: POST /api/auth/register.php    { email, password }
+Logout:   POST /api/auth/logout.php
+```
+
+### Customer
+```
+Session keys: user_id, user_role='user', user_phone
+Login:    POST /api/user/login.php       { phone, password }
+Register: POST /api/user/register.php    { phone, password, firstName, ... }
+Logout:   POST /api/user/logout.php
+```
+
+### Unified Session Check
+
+`api/session/me.php` handles both roles in a single request. `api-client.js → refreshSession()` uses this endpoint exclusively. `api/auth/me.php` and `api/user/me.php` are thin shims that redirect to it.
+
+### Session Security Settings (`_bootstrap.php`)
+
+```php
+session.cookie_httponly  = 1         // No JS access to session cookie
+session.cookie_samesite  = Lax       // CSRF mitigation
+session.cookie_secure    = 1         // HTTPS only (production)
+session.use_strict_mode  = 1         // Session fixation protection
+session.gc_maxlifetime   = 7200      // 2-hour server-side TTL
+```
+
+---
+
+## 🖥 Frontend Architecture
+
+### `api-client.js` — Single Fetch Entry Point
 
 ```js
 import { api, getSession, onAuthChange, refreshSession } from './api-client.js';
 
 // GET / POST
-const res = await api.get('/api/public/salons.php');
-const res = await api.post('/api/user/login.php', { phone, password });
+const res = await api.get('/api/public/salons.php?city=Istanbul');
+const res = await api.post('/api/appointments/book.php', { staffId, startAt });
 
-// Oturum dinle
+// React to session changes
 onAuthChange(session => {
-    if (!session) { /* giriş yok */ return; }
-    if (session.type === 'admin') { /* admin UI */ }
-    if (session.type === 'user')  { /* müşteri UI */ }
+  if (!session) return showLoginPrompt();
+  if (session.type === 'admin') return renderAdminUI(session);
+  if (session.type === 'user')  return renderUserUI(session);
 });
 ```
 
-### Diğer Dosyalardaki Yerel apiGet/apiPost
+### `wb-api-shim.js` — Global API Layer
 
-`calendar.js`, `settings.js`, `staff.js`, `profile.js`, `admin-profile.js` ve `user-profile.js` şu an kendi yerel `apiGet`/`apiPost` tanımlarını kullanıyor. Bu dosyalar gelecekte `api-client.js`'e migrate edilebilir.
+Provides `window.apiGet` / `window.apiPost` global functions for older-style pages (`calendar.js`, `settings.js`, `staff.js`, `profile.js`).
 
-### `auth.js` — Müşteri Auth UI
+**Features:**
+- 12-second timeout + 1 automatic retry on 5xx errors
+- 401/403 → automatic redirect to login page
+- Offline detection via `navigator.onLine`
+- Automatic CSRF token header injection
 
-4 adımlı kayıt akışı (telefon → şifre → kimlik → adres) ve giriş formu.  
-Artık `api-client.js`'in `api` nesnesi üzerinden istek atıyor.  
-`initGoogleAuth()` kaldırıldı — Google auth `index.html` inline script'inden yönetiliyor.
+### `auth.js` — Customer Register/Login UI
 
-```js
-import { initAuth, normPhone } from './auth.js';
+4-step registration flow:
+1. Phone number entry
+2. Password setup
+3. Full name and date of birth
+4. Address information
+
+---
+
+## 📲 PWA & Service Worker
+
+`service-worker.js` uses three separate cache buckets:
+
+| Cache | Contents | Strategy |
+|-------|----------|----------|
+| `webey-static-v2` | CSS, JS, fonts | Stale-while-revalidate |
+| `webey-pages-v2` | HTML pages | Network-first |
+| `webey-images-v2` | Images | Cache-first, 3-day TTL |
+
+**Key Notes:**
+- API requests are **never** cached
+- While offline, `/offline.html` is shown and auto-redirects when connectivity returns
+- `push` and `notificationclick` event handlers are in place for Web Push
+- To invalidate all caches on deploy, increment `CACHE_VERSION` (e.g. `'v3'`); old caches are purged automatically
+
+**`manifest.json` App Shortcuts:**
+- "Find Barber" → `/kuafor.html`
+- "My Appointments" → `/user-profile.html`
+
+---
+
+## 🔒 Security
+
+### CSRF Protection
+
+```php
+// Defined in wb_response.php
+wb_csrf_token();   // Generate and return a token
+wb_csrf_verify();  // Mandatory check on all POST/PUT/DELETE requests
 ```
 
----
+The frontend sends the token via the `X-CSRF-Token` header; `wb-api-shim.js` adds it automatically to every mutating request.
 
-## Service Worker & Cache
+### Brute-Force Protection
 
-`service-worker.js` 3 ayrı cache bucket kullanır:
+IP-based tracking via the `login_attempts` table:
+- 10 failed attempts within 5 minutes → HTTP `429 Too Many Requests`
+- Active on both admin login and customer login endpoints
 
-| Cache | İçerik | Strateji |
-|-------|---------|----------|
-| `webey-static-v2` | CSS, JS, fontlar | Stale-while-revalidate |
-| `webey-pages-v2` | HTML sayfalar | Network-first |
-| `webey-images-v2` | Görseller | Cache-first, 3 gün TTL |
+### IP-Based Rate Limiting
 
-**Cache versiyonunu güncellemek:** `service-worker.js` dosyasında `CACHE_VERSION = 'v2'` satırını artır (örn. `'v3'`). Deploy sonrası kullanıcıların tarayıcısı eski cache'i otomatik temizler.
+The `api_rate_limits` table enforces limits on high-risk endpoints such as appointment booking (`book.php`) and slot locking (`lock.php`).
 
-**API istekleri hiçbir zaman cache'e alınmaz.** Çevrimdışıyken API çağrılarına `{ ok: false, error: 'Çevrimdışısınız...' }` döner.
+### Input Validation
 
----
-
-## Veritabanı
-
-### Tablolar
-| Tablo | Açıklama |
-|-------|----------|
-| `users` | Tüm kullanıcılar (admin + müşteri), email ile unique |
-| `admin_users` | users tablosuna 1:1, işletme sahipleri |
-| `businesses` | İşletme profilleri |
-| `customers` | users tablosuna 1:1, müşteri profilleri |
-| `appointments` | Randevular |
-| `appointment_logs` | Randevu durum geçmişi |
-| `services` | İşletme hizmetleri |
-| `staff` | Personeller |
-| `staff_hours` | Personel çalışma saatleri |
-| `business_hours` | İşletme çalışma saatleri |
-| `reviews` | Değerlendirmeler |
-| `favorites` | Müşteri favorileri |
-| `subscriptions` | Abonelikler |
-| `invoices` | Faturalar |
-| `payment_cards` | Kayıtlı ödeme kartları |
-
-### Migration Uygulama
-
-```bash
-# Önce yedek al
-mysqldump -u root -p webey_local > backup_$(date +%Y%m%d).sql
-
-# Migration'ı uygula
-mysql -u root -p webey_local < database/webey_migration_001.sql
+```php
+wb_validate($data, [
+    'email'    => ['required', 'email', 'max:191'],
+    'password' => ['required', 'min:8'],
+    'phone'    => ['required', 'regex:/^5\d{9}$/'],
+]);
+// Supported rules: required, email, numeric, min:N, max:N, regex:/pattern/, in:a,b,c
 ```
 
-`webey_migration_001.sql` içeriği:
-- 11 yeni index (status, phone, city/district, onboarding vb.)
-- 2 mükerrer index silindi
-- `appointments.updated_at` kolonu eklendi
-- `appointment_logs` tablosu oluşturuldu
+### Additional Measures
+- All SQL queries use PDO prepared statements — no SQL injection possible
+- File upload endpoints validate MIME type and file size
+- `.htaccess` blocks direct access to `api/keys/` and sensitive PHP files
+- `display_errors = 0` enforced in production
 
 ---
 
-## Kurulum
+## 🚀 Installation
 
-### Gereksinimler
+### Requirements
+
 - PHP 8.2+
 - MariaDB 10.4+ / MySQL 8+
-- Composer (opsiyonel, mailer için)
+- Apache with `mod_rewrite` enabled
+- Composer (optional, for PHPMailer)
 
-### Adımlar
+### Steps
 
 ```bash
-# 1. db.php dosyasını yapılandır
-cp db.php.example db.php
-# DB_HOST, DB_NAME, DB_USER, DB_PASS değerlerini doldur
+# 1. Clone the repository into your web root
+git clone https://github.com/yourusername/webey.git /var/www/html/
 
-# 2. Şemayı kur
+# 2. Create the database
+mysql -u root -p -e "CREATE DATABASE webey_local CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# 3. Run the schema
 mysql -u root -p webey_local < database/schema.sql
 
-# 3. Migration'ları uygula
+# 4. Apply migrations
 mysql -u root -p webey_local < database/webey_migration_001.sql
 
-# 4. Email ayarları
-# api/_email_config.php dosyasını doldur (SMTP, site_url vb.)
+# 5. Configure the database connection
+cp db.php.example db.php
+# Edit db.php: fill in DB_HOST, DB_NAME, DB_USER, DB_PASS
 
-# 5. Google OAuth
-# api/auth/google-login.php içindeki CLIENT_ID'yi güncelle
-# index.html ve auth.js'deki GOOGLE_CLIENT_ID'yi güncelle
+# 6. Configure email
+# Fill in api/_email_config.php (SMTP host, credentials, site_url)
+
+# 7. Set Google OAuth Client ID
+# api/auth/google-login.php → CLIENT_ID constant
+# index.html → meta[name="google-signin-client_id"]
+
+# 8. Set Iyzico API keys
+# api/_iyzico_config.php
+
+# 9. Set upload directory permissions
+chmod 755 uploads/
+chmod 755 uploads/biz/
 ```
 
-### Ortam Değişkenleri (Önerilen)
-`_email_config.php` ve `db.php`'deki hassas değerleri `$_ENV` üzerinden yönet:
+### Environment Variables (Recommended)
+
+Manage sensitive values via `$_ENV` rather than hardcoding them:
 
 ```php
 // db.php
 $pdo = new PDO(
-    'mysql:host=' . ($_ENV['DB_HOST'] ?? 'localhost') . ';dbname=' . ($_ENV['DB_NAME'] ?? 'webey_local'),
+    'mysql:host=' . ($_ENV['DB_HOST'] ?? 'localhost')
+        . ';dbname=' . ($_ENV['DB_NAME'] ?? 'webey_local'),
     $_ENV['DB_USER'] ?? 'root',
     $_ENV['DB_PASS'] ?? ''
 );
 ```
+
+---
+
+## ⏰ Cron Jobs
+
+The following cron jobs must be registered on the server:
+
+```bash
+# Appointment reminder emails (every 15 minutes)
+*/15 * * * *  php /var/www/html/api/billing/cron_reminders.php    >> /var/log/webey_reminders.log 2>&1
+
+# Subscription renewal reminders (daily)
+0 9  * * *    php /var/www/html/api/billing/cron_sub_reminders.php >> /var/log/webey_sub.log 2>&1
+
+# Expire overdue subscriptions (daily)
+0 1  * * *    php /var/www/html/api/billing/cron_expire.php        >> /var/log/webey_expire.log 2>&1
+
+# Email queue processor (every 5 minutes)
+*/5 * * * *   php /var/www/html/api/cron_send_emails.php           >> /var/log/webey_mail.log 2>&1
+
+# SMS queue processor (every 5 minutes)
+*/5 * * * *   php /var/www/html/api/cron_send_sms.php              >> /var/log/webey_sms.log 2>&1
+
+# Rate limit & token cleanup (nightly)
+0 3  * * *    php /var/www/html/api/cron_cleanup.php               >> /var/log/webey_cleanup.log 2>&1
+```
+
+---
+
+## 📝 Development Notes
+
+### Known Technical Debt
+
+- `calendar.js`, `settings.js`, and `staff.js` still use local `apiGet`/`apiPost` definitions → should be migrated to `wb-api-shim.js` or `api-client.js`
+- Google Auth is managed via an inline `<script>` block on some pages → should be consolidated into `auth.js`
+
+### Roadmap (Suggested Next Steps)
+
+1. **SMS OTP** — Customer phone verification via Twilio or Netgsm
+2. **Map integration** — `latitude`/`longitude` columns are ready; add Leaflet.js to the business detail page
+3. **Multi-service booking** — Allow selecting multiple services in a single appointment
+4. **SEO-friendly URLs** — Replace `kuafor.html?id=X` with clean `/{slug}` routes
+5. **Live push notifications** — Web Push infrastructure is in place; activate by adding VAPID keys
+6. **Superadmin dashboard** — `api/superadmin/` endpoints exist; front-end UI needs to be built
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m 'feat: description of your feature'`
+4. Push the branch: `git push origin feature/your-feature-name`
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is currently under a proprietary license. For inquiries: [webey.com.tr](https://webey.com.tr)
+
+---
+
+<div align="center">
+  <strong>Webey</strong> · PHP 8.2 · MariaDB · Vanilla JS · PWA<br/>
+  <em>Discover nearby barbershops and book an appointment in seconds.</em>
+</div>
