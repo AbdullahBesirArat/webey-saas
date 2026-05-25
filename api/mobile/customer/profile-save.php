@@ -27,17 +27,29 @@ $userId  = $session['user_id'];
 
 $in = wb_body();
 
-// ── Input sanitization ────────────────────────────────────────────────────────
-$firstName    = mb_substr(trim((string)($in['first_name']   ?? '')), 0, 100);
-$lastName     = mb_substr(trim((string)($in['last_name']    ?? '')), 0, 100);
-$phone        = mb_substr(trim((string)($in['phone']        ?? '')), 0, 30);
-$city         = mb_substr(trim((string)($in['city']         ?? '')), 0, 80);
-$district     = mb_substr(trim((string)($in['district']     ?? '')), 0, 80);
-$neighborhood = mb_substr(trim((string)($in['neighborhood'] ?? '')), 0, 80);
+// ── Input sanitization — sadece body'de gelen alanları işle ──────────────────
+$colMaxLen = [
+    'first_name'   => 100,
+    'last_name'    => 100,
+    'phone'        => 30,
+    'city'         => 80,
+    'district'     => 80,
+    'neighborhood' => 80,
+];
 
-// Telefon format kontrolü: rakam, boşluk, parantez, tire, artı içerebilir
-if ($phone !== '' && !preg_match('/^[\+\d\s\-\(\)]{7,20}$/', $phone)) {
-    wb_err('Telefon numarası geçersiz biçimde.', 422, 'invalid_phone');
+// Telefon format kontrolü: sadece body'de phone varsa
+if (array_key_exists('phone', $in)) {
+    $phoneRaw = mb_substr(trim((string)($in['phone'] ?? '')), 0, 30);
+    if ($phoneRaw !== '' && !preg_match('/^[\+\d\s\-\(\)]{7,20}$/', $phoneRaw)) {
+        wb_err('Telefon numarası geçersiz biçimde.', 422, 'invalid_phone');
+    }
+}
+
+$fields = [];
+foreach ($colMaxLen as $col => $max) {
+    if (!array_key_exists($col, $in)) continue;
+    $val = mb_substr(trim((string)($in[$col] ?? '')), 0, $max);
+    $fields[$col] = $val !== '' ? $val : null;
 }
 
 try {
@@ -46,42 +58,25 @@ try {
     $checkStmt->execute([$userId]);
     $existingId = $checkStmt->fetchColumn();
 
-    if ($existingId !== false) {
-        // Satır var → UPDATE
-        $pdo->prepare("
-            UPDATE customers
-            SET first_name    = ?,
-                last_name     = ?,
-                phone         = ?,
-                city          = ?,
-                district      = ?,
-                neighborhood  = ?
-            WHERE user_id = ?
-        ")->execute([
-            $firstName    !== '' ? $firstName    : null,
-            $lastName     !== '' ? $lastName     : null,
-            $phone        !== '' ? $phone        : null,
-            $city         !== '' ? $city         : null,
-            $district     !== '' ? $district     : null,
-            $neighborhood !== '' ? $neighborhood : null,
-            $userId,
-        ]);
-    } else {
-        // Satır yok → INSERT
-        $pdo->prepare("
-            INSERT INTO customers
-                (user_id, first_name, last_name, phone, city, district, neighborhood)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ")->execute([
-            $userId,
-            $firstName    !== '' ? $firstName    : null,
-            $lastName     !== '' ? $lastName     : null,
-            $phone        !== '' ? $phone        : null,
-            $city         !== '' ? $city         : null,
-            $district     !== '' ? $district     : null,
-            $neighborhood !== '' ? $neighborhood : null,
-        ]);
+    if ($fields !== []) {
+        if ($existingId !== false) {
+            // Satır var → sadece gönderilen alanları UPDATE et
+            $setClauses = implode(', ', array_map(fn($col) => "$col = ?", array_keys($fields)));
+            $params = array_values($fields);
+            $params[] = $userId;
+            $pdo->prepare("UPDATE customers SET $setClauses WHERE user_id = ?")->execute($params);
+        } else {
+            // Satır yok → INSERT
+            $cols         = implode(', ', array_keys($fields));
+            $placeholders = implode(', ', array_fill(0, count($fields), '?'));
+            $params       = [$userId, ...array_values($fields)];
+            $pdo->prepare("
+                INSERT INTO customers (user_id, $cols)
+                VALUES (?, $placeholders)
+            ")->execute($params);
+        }
     }
+    // body boşsa ($fields === []) mevcut profil korunur, hiçbir yazma yapılmaz
 
     // ── Güncel profil datasını çek (profile.php ile aynı sorgu) ───────────────
     $stmt = $pdo->prepare("
